@@ -1,6 +1,6 @@
-CXX = g++
-SRC_FILES = src/main.cpp src/emulator.cpp src/cpu.cpp src/mmu.cpp
-CFLAGS = -Wall -Wextra -Werror -Iinclude
+CXX = gcc
+SRC_FILES = src/main.c src/emulator.c src/cpu.c src/mmu.c
+CFLAGS = -Wall -Wextra  -Iinclude
 
 all: emulator
 

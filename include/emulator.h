@@ -1,19 +1,17 @@
 #ifndef _emulator_h
 #define _emulator_h
 
+#include <stdint.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
 #include "cpu.h"
 #include "mmu.h"
 
-class Emulator {
-public:
-    Emulator();
-
-    void run();
-    int load(const char *path);
-
-private:
-    Cpu cpu;
-    MMU mmu;
-};
+void emulator_init();
+int emulator_load(const char *path);
+void emulator_run();
 
 #endif
