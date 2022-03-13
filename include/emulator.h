@@ -7,11 +7,23 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <SDL2/SDL.h>
+
 #include "cpu.h"
 #include "mmu.h"
+#include "rom.h"
+#include "lcd.h"
+
+typedef struct emu_t {
+    uint8_t *rom;
+    SDL_Window *window;
+    SDL_Renderer *renderer;
+} emu_t;
 
 void emulator_init();
 int emulator_load(const char *path);
-void emulator_run();
+void emulator_rom_info();
+
+extern emu_t emu;
 
 #endif
