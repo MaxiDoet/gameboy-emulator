@@ -26,11 +26,14 @@ void instruction_ccf()
         SET_FLAG(FLAG_CARRY);
     }
 
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
     cpu.cycles += 4;
 }
 
 void instruction_scf()
 {
+    CLEAR_FLAG(FLAG_SUBTRACTION);
     SET_FLAG(FLAG_CARRY);
     cpu.cycles += 4;
 }
@@ -123,7 +126,6 @@ void instruction_jp_c_nn()
 
 void instruction_jr_dd()
 {
-    /* TODO: Check if this is right */
     cpu.regs.pc += (int8_t) mmu_rb(cpu.regs.pc) + 1;
     cpu.cycles += 12;
 }
@@ -294,7 +296,7 @@ void instruction_reti()
 void instruction_rst_00()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0000;
     cpu.cycles += 16;
 }
@@ -302,7 +304,7 @@ void instruction_rst_00()
 void instruction_rst_08()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0008;
     cpu.cycles += 16;
 }
@@ -310,7 +312,7 @@ void instruction_rst_08()
 void instruction_rst_10()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0010;
     cpu.cycles += 16;
 }
@@ -318,7 +320,7 @@ void instruction_rst_10()
 void instruction_rst_18()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0018;
     cpu.cycles += 16;
 }
@@ -326,7 +328,7 @@ void instruction_rst_18()
 void instruction_rst_20()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0020;
     cpu.cycles += 16;
 }
@@ -334,7 +336,7 @@ void instruction_rst_20()
 void instruction_rst_28()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc);
     cpu.regs.pc = 0x0028;
     cpu.cycles += 16;
 }
@@ -342,7 +344,7 @@ void instruction_rst_28()
 void instruction_rst_30()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1);
     cpu.regs.pc = 0x0030;
     cpu.cycles += 16;
 }
@@ -350,7 +352,7 @@ void instruction_rst_30()
 void instruction_rst_38()
 {
     cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1); // TODO: Check if thats right
+    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1);
     cpu.regs.pc = 0x0038;
     cpu.cycles += 16;
 }
@@ -491,7 +493,7 @@ void instruction_ld_d_a()
 
 void instruction_ld_d_b()
 {
-    cpu.regs.a = cpu.regs.b;
+    cpu.regs.d = cpu.regs.b;
     cpu.cycles += 4;
 }
 
@@ -805,7 +807,8 @@ void instruction_ld_a_dep()
 
 void instruction_ld_a_nnp()
 {
-    cpu.regs.a = (mmu_rb(cpu.regs.pc) << 8) | mmu_rb(cpu.regs.pc + 1);
+    /* TODO: Check this */
+    cpu.regs.a = mmu_rb(mmu_rw(cpu.regs.pc));
     cpu.regs.pc += 2;
     cpu.cycles += 16;
 }
@@ -824,7 +827,8 @@ void instruction_ld_dep_a()
 
 void instruction_ld_nnp_a()
 {
-    mmu_wb((mmu_rb(cpu.regs.pc) << 8) | mmu_rb(cpu.regs.pc + 1), cpu.regs.a);
+    /* TODO: Check this */
+    mmu_wb(mmu_rw(cpu.regs.pc), a);
     cpu.regs.pc += 2;
     cpu.cycles += 16;
 }
