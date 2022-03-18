@@ -828,7 +828,7 @@ void instruction_ld_dep_a()
 void instruction_ld_nnp_a()
 {
     /* TODO: Check this */
-    mmu_wb(mmu_rw(cpu.regs.pc), a);
+    mmu_wb(mmu_rw(cpu.regs.pc), cpu.regs.a);
     cpu.regs.pc += 2;
     cpu.cycles += 16;
 }
@@ -1749,77 +1749,65 @@ void instruction_cp_a()
 
 void instruction_cp_b()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.b;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.b) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.b) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_c()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.c;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.c) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.c) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_d()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.d;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.d) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.d) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_e()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.e;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.e) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.e) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_h()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.h;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.h) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.h) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_l()
 {
-    uint8_t result = cpu.regs.a - cpu.regs.l;
-
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < cpu.regs.l) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == cpu.regs.l) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
 
 void instruction_cp_n()
 {
-    uint8_t result = cpu.regs.a - mmu_rb(cpu.regs.pc);
+    uint8_t value = mmu_rb(cpu.regs.pc);
 
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < value) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == value) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
     cpu.regs.pc += 1;
@@ -1827,11 +1815,11 @@ void instruction_cp_n()
 
 void instruction_cp_hlp()
 {
-    uint8_t result = cpu.regs.a - mmu_rb(cpu.regs.hl);
+    uint8_t value = mmu_rb(cpu.regs.hl);
 
-    if (!result) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a < value) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
     SET_FLAG(FLAG_SUBTRACTION);
-    if (result < 0) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a == value) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
 
     cpu.cycles += 4;
 }
@@ -1906,7 +1894,6 @@ void instruction_inc_l()
     cpu.cycles += 4;
 }
 
-// TODO: Check if that works
 void instruction_inc_hlp()
 {
     mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) + 1);
