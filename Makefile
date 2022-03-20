@@ -1,5 +1,5 @@
 CC = gcc
-SRC_FILES = src/main.c src/emulator.c src/cpu.c src/mmu.c src/lcd.c
+SRC_FILES = src/main.c src/emulator.c src/cpu.c src/mmu.c src/lcd.c src/interrupts.c src/input.c
 CFLAGS = -Wall -Wextra  -Iinclude `sdl2-config --cflags --libs` -g
 
 all: emulator

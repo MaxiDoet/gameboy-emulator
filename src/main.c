@@ -27,6 +27,7 @@ int main(int argc, char *argv[])
 
         cpu_step();
         lcd_step(cpu.cycles - last_cycles);
+        interrupts_step();
 
         last_cycles = cpu.cycles;
     }

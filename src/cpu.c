@@ -10,9 +10,19 @@ cpu_t cpu;
 #define CLEAR_FLAG(flag) cpu.regs.f &= ~flag
 #define CHECK_FLAG(flag) ((cpu.regs.f & flag) == flag)
 
-#ifdef CPU_DEBUG
-#define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__)
-#endif
+void cpu_stack_push(uint16_t value)
+{
+    cpu.regs.sp -= 2;
+    mmu_ww(cpu.regs.sp, value);
+}
+
+uint16_t cpu_stack_pop()
+{
+    uint16_t value = mmu_rw(cpu.regs.sp);
+    cpu.regs.sp += 2;
+
+    return value;
+}
 
 /* Instructions */
 
@@ -158,7 +168,7 @@ void instruction_jr_nc_dd()
         cpu.regs.pc += (int8_t) mmu_rb(cpu.regs.pc) + 1;
         cpu.cycles += 12;
     } else {
-        cpu.regs.pc++;
+        cpu.regs.pc += 1;
         cpu.cycles += 8;
     }
 }
@@ -169,7 +179,7 @@ void instruction_jr_c_dd()
         cpu.regs.pc += (int8_t) mmu_rb(cpu.regs.pc) + 1;
         cpu.cycles += 12;
     } else {
-        cpu.regs.pc++;
+        cpu.regs.pc += 1;
         cpu.cycles += 8;
     }
 }
@@ -295,64 +305,56 @@ void instruction_reti()
 
 void instruction_rst_00()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0000;
     cpu.cycles += 16;
 }
 
 void instruction_rst_08()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0008;
     cpu.cycles += 16;
 }
 
 void instruction_rst_10()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0010;
     cpu.cycles += 16;
 }
 
 void instruction_rst_18()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0018;
     cpu.cycles += 16;
 }
 
 void instruction_rst_20()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0020;
     cpu.cycles += 16;
 }
 
 void instruction_rst_28()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0028;
     cpu.cycles += 16;
 }
 
 void instruction_rst_30()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0030;
     cpu.cycles += 16;
 }
 
 void instruction_rst_38()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.pc - 1);
+    cpu_stack_push(cpu.regs.pc);
     cpu.regs.pc = 0x0038;
     cpu.cycles += 16;
 }
@@ -807,7 +809,6 @@ void instruction_ld_a_dep()
 
 void instruction_ld_a_nnp()
 {
-    /* TODO: Check this */
     cpu.regs.a = mmu_rb(mmu_rw(cpu.regs.pc));
     cpu.regs.pc += 2;
     cpu.cycles += 16;
@@ -827,7 +828,6 @@ void instruction_ld_dep_a()
 
 void instruction_ld_nnp_a()
 {
-    /* TODO: Check this */
     mmu_wb(mmu_rw(cpu.regs.pc), cpu.regs.a);
     cpu.regs.pc += 2;
     cpu.cycles += 16;
@@ -917,7 +917,7 @@ void instruction_ld_sp_nn()
 
 void instruction_ld_nnp_sp()
 {
-    mmu_ww(cpu.regs.pc, cpu.regs.sp);
+    mmu_ww(mmu_rw(cpu.regs.pc), cpu.regs.sp);
     cpu.regs.pc += 2;
     cpu.cycles += 20;
 }
@@ -930,57 +930,49 @@ void instruction_ld_sp_hl()
 
 void instruction_push_af()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.af);
+    cpu_stack_push(cpu.regs.af);
     cpu.cycles += 16;
 }
 
 void instruction_push_bc()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.bc);
+    cpu_stack_push(cpu.regs.bc);
     cpu.cycles += 16;
 }
 
 void instruction_push_de()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.de);
+    cpu_stack_push(cpu.regs.de);
     cpu.cycles += 16;
 }
 
 void instruction_push_hl()
 {
-    cpu.regs.sp -= 2;
-    mmu_ww(cpu.regs.sp, cpu.regs.hl);
+    cpu_stack_push(cpu.regs.hl);
     cpu.cycles += 16;
 }
 
 void instruction_pop_af()
 {
-    cpu.regs.af = mmu_rw(cpu.regs.sp);
-    cpu.regs.sp += 2;
+    cpu.regs.af = cpu_stack_pop();
     cpu.cycles += 12;
 }
 
 void instruction_pop_bc()
 {
-    cpu.regs.bc = mmu_rw(cpu.regs.sp);
-    cpu.regs.sp += 2;
+    cpu.regs.bc = cpu_stack_pop();
     cpu.cycles += 12;
 }
 
 void instruction_pop_de()
 {
-    cpu.regs.de = mmu_rw(cpu.regs.sp);
-    cpu.regs.sp += 2;
+    cpu.regs.de = cpu_stack_pop();
     cpu.cycles += 12;
 }
 
 void instruction_pop_hl()
 {
-    cpu.regs.hl = mmu_rw(cpu.regs.sp);
-    cpu.regs.sp += 2;
+    cpu.regs.hl = cpu_stack_pop();
     cpu.cycles += 12;
 }
 
@@ -2119,6 +2111,36 @@ void instruction_ld_hl_sp_dd()
     cpu.regs.pc += 1;
 }
 
+void instruction_rlca()
+{
+    uint8_t carry = cpu.regs.a & 0x80;
+    uint8_t result = (cpu.regs.a << 1) | carry;
+
+    cpu.regs.a = result;
+
+    if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 4;
+}
+
+/* TODO: Fix this */
+void instruction_rla()
+{
+    uint8_t carry = cpu.regs.a & 0x80;
+
+    cpu.regs.a = (cpu.regs.a << 1);
+    if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
+
+    if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 4;
+}
+
+
 /* CB */
 
 void instruction_cb_swap_a()
@@ -2128,8 +2150,573 @@ void instruction_cb_swap_a()
     cpu.cycles += 8;
 }
 
+void instruction_cb_res_0_a()
+{
+    cpu.regs.a &= ~(1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_1_a()
+{
+    cpu.regs.a &= ~(1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_2_a()
+{
+    cpu.regs.a &= ~(1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_3_a()
+{
+    cpu.regs.a &= ~(1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_4_a()
+{
+    cpu.regs.a &= ~(1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_5_a()
+{
+    cpu.regs.a &= ~(1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_6_a()
+{
+    cpu.regs.a &= ~(1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_7_a()
+{
+    cpu.regs.a &= ~(1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_res_0_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 0));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_1_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 1));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_2_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 2));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_3_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 3));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_4_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 4));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_5_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 5));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_6_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 6));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_res_7_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) & ~(1 << 7));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_0_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 0));
+
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_1_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 1));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_2_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 2));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_3_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 3));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_4_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 4));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_5_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 5));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_6_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 6));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_set_7_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 7));
+    
+    cpu.cycles += 16;
+}
+
+void instruction_cb_bit_0_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_0_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_a()
+{
+    cpu.regs.a >>= 1;
+
+    if (cpu.regs.a & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.a) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_b()
+{
+    cpu.regs.b >>= 1;
+
+    if (cpu.regs.b & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.b) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_c()
+{
+    cpu.regs.c >>= 1;
+
+    if (cpu.regs.c & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.c) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_d()
+{
+    cpu.regs.d >>= 1;
+
+    if (cpu.regs.d & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.d) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_e()
+{
+    cpu.regs.e >>= 1;
+
+    if (cpu.regs.e & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.e) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_h()
+{
+    cpu.regs.h >>= 1;
+
+    if (cpu.regs.h & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.h) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_l()
+{
+    cpu.regs.l >>= 1;
+
+    if (cpu.regs.l & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (cpu.regs.l) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_srl_hlp()
+{
+    mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) >> 1);
+
+    if (mmu_rb(cpu.regs.hl) & 0x01) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    if (mmu_rb(cpu.regs.hl)) CLEAR_FLAG(FLAG_ZERO); else SET_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+/* Temporary instructions for the boot rom */
+
+void instruction_cb_rl_c()
+{
+    uint8_t carry = cpu.regs.c & (1 << 7);
+    if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+
+    cpu.regs.c = (cpu.regs.c << 1) | CHECK_FLAG(FLAG_CARRY);
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+}
+
 const void (*cb_instruction_pointers[256])(void) = {
-    [0x37] = &instruction_cb_swap_a
+    [0x37] = &instruction_cb_swap_a,
+
+    [0x87] = &instruction_cb_res_0_a,
+    [0x8F] = &instruction_cb_res_1_a,
+    [0x97] = &instruction_cb_res_2_a,
+    [0x9F] = &instruction_cb_res_3_a,
+    [0xA7] = &instruction_cb_res_4_a,
+    [0xAF] = &instruction_cb_res_5_a,
+    [0xB7] = &instruction_cb_res_6_a,
+    [0xBF] = &instruction_cb_res_7_a,
+
+    [0x86] = &instruction_cb_res_0_hlp,
+    [0x8E] = &instruction_cb_res_1_hlp,
+    [0x96] = &instruction_cb_res_2_hlp,
+    [0x9E] = &instruction_cb_res_3_hlp,
+    [0xA6] = &instruction_cb_res_4_hlp,
+    [0xAE] = &instruction_cb_res_5_hlp,
+    [0xB6] = &instruction_cb_res_6_hlp,
+    [0xBE] = &instruction_cb_res_7_hlp,
+
+    [0xC6] = &instruction_cb_set_0_hlp,
+    [0xCE] = &instruction_cb_set_1_hlp,
+    [0xD6] = &instruction_cb_set_2_hlp,
+    [0xDE] = &instruction_cb_set_3_hlp,
+    [0xE6] = &instruction_cb_set_4_hlp,
+    [0xEE] = &instruction_cb_set_5_hlp,
+    [0xF6] = &instruction_cb_set_6_hlp,
+    [0xFE] = &instruction_cb_set_7_hlp,
+
+    [0x44] = &instruction_cb_bit_0_h,
+    [0x4C] = &instruction_cb_bit_1_h,
+    [0x54] = &instruction_cb_bit_2_h,
+    [0x5C] = &instruction_cb_bit_3_h,
+    [0x64] = &instruction_cb_bit_4_h,
+    [0x6C] = &instruction_cb_bit_5_h,
+    [0x74] = &instruction_cb_bit_6_h,
+    [0x7C] = &instruction_cb_bit_7_h,
+ 
+    [0x46] = &instruction_cb_bit_0_hlp,
+    [0x4E] = &instruction_cb_bit_1_hlp,
+    [0x56] = &instruction_cb_bit_2_hlp,
+    [0x5E] = &instruction_cb_bit_3_hlp,
+    [0x66] = &instruction_cb_bit_4_hlp,
+    [0x6E] = &instruction_cb_bit_5_hlp,
+    [0x76] = &instruction_cb_bit_6_hlp,
+    [0x7E] = &instruction_cb_bit_7_hlp,
+
+    [0x3F] = &instruction_cb_srl_a,
+    [0x38] = &instruction_cb_srl_b,
+    [0x39] = &instruction_cb_srl_c,
+    [0x3A] = &instruction_cb_srl_d,
+    [0x3B] = &instruction_cb_srl_e,
+    [0x3C] = &instruction_cb_srl_h,
+    [0x3D] = &instruction_cb_srl_l,
+    [0x3E] = &instruction_cb_srl_hlp,
+
+    /* Temp */
+    [0x11] = &instruction_cb_rl_c,
 };
 
 void instruction_cb()
@@ -2394,6 +2981,10 @@ const char* instruction_labels[256] = {
     [0xE8] = "ADD SP,dd",
     [0xF8] = "LD HL,SP+dd",
 
+    /* Rotate and Shift */
+    [0x07] = "RLCA",
+    [0x17] = "RLA",
+
     [0xCB] = "CB"
 };
 
@@ -2649,13 +3240,17 @@ const void (*instruction_pointers[256])(void) = {
     [0xE8] = &instruction_add_sp_dd,
     [0xF8] = &instruction_ld_hl_sp_dd,
 
+    /* Rotate and Shift */
+    [0x07] = &instruction_rlca,
+    [0x17] = &instruction_rla,
+
     [0xCB] = &instruction_cb
 };
 
 void cpu_init()
 {
     cpu_reset();
-    cpu.regs.pc = 0x0100;
+    cpu.regs.pc = 0x0000;
 }
 
 void cpu_reset()
@@ -2667,6 +3262,7 @@ void cpu_reset()
     cpu.regs.sp = 0x0000;
     cpu.regs.pc = 0x0000;
     cpu.ie = 0x00;
+    cpu.ifr = 0x00;
     cpu.ime = false;
 }
 
@@ -2735,35 +3331,37 @@ void cpu_step()
         return;
     }
 
-    // Handle interrupts
-    char *interrupt_name;
-    if (cpu.ime && (cpu.ifr & cpu.ie)) {
-        if (cpu.ifr & CPU_IF_VBLANK && cpu.ie & CPU_IE_VBLANK) {
-            cpu.regs.pc = 0x0040;
-            interrupt_name = "VBLANK";
-        } else if (cpu.ifr & CPU_IF_LCD_STAT && cpu.ie & CPU_IE_LCD_STAT) {
-            cpu.regs.pc = 0x0048;
-            interrupt_name = "STAT";
-        } else if (cpu.ifr & CPU_IF_TIMER && cpu.ie & CPU_IE_TIMER) {
-            cpu.regs.pc = 0x0050;
-            interrupt_name = "TIMER";
-        } else if (cpu.ifr & CPU_IF_SERIAL && cpu.ie & CPU_IE_SERIAL) {
-            cpu.regs.pc = 0x0058;
-            interrupt_name = "SERIAL";
-        } else if (cpu.ifr & CPU_IF_JOYPAD && cpu.ie & CPU_IE_JOYPAD) {
-            cpu.regs.pc = 0x0060;
-            interrupt_name = "JOYPAD";
+    if (cpu.halted) {
+        cpu.cycles += 1;
+    }
+
+    if (cpu.regs.pc == 0x00E9) {
+        cpu.regs.pc = 0x00EB;
+    }
+
+    /*
+    uint16_t start = 0x8000;
+    if (cpu.regs.pc == 0x0055) {
+        for (int i=0; i < 32; i++) {
+            printf("%02X | ", start + i*32);
+
+            for (int j=0; j < 32; j++) {
+                printf("%02X ", mmu_rb(start + i*32 + j));
+            }
+
+            printf("\n");
         }
 
-        cpu.ime = false;
+        cpu.stopped = true;
     }
+    */  
 
     uint8_t opcode = mmu_rb(cpu.regs.pc);
     cpu.regs.pc++;
     
     if (instruction_pointers[opcode]) {
         #ifdef CPU_DEBUG
-        DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X | %02X | %s\n",
+        DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
                 cpu.regs.a,
                 cpu.regs.b,
                 cpu.regs.c,
@@ -2775,6 +3373,8 @@ void cpu_step()
                 cpu.regs.pc - 1,
                 cpu.regs.sp,
                 cpu.ie,
+                cpu.ifr,
+                cpu.cycles,
                 opcode,
                 instruction_labels[opcode]
             );

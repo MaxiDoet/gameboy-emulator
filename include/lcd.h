@@ -8,9 +8,37 @@
 
 #define LCD_DEBUG
 
+typedef union {
+    struct {
+        uint8_t bg_enable               : 1;
+        uint8_t obj_enable              : 1;
+        uint8_t obj_size                : 1;
+        uint8_t bg_tile_map_area        : 1;
+        uint8_t bg_tile_data_area       : 1;
+        uint8_t window_enable           : 1;
+        uint8_t window_tile_map_area    : 1;
+        uint8_t lcd_ppu_enable          : 1;
+    } fields;
+
+    uint8_t value;  
+} lcd_control_reg_t;
+
+typedef union {
+    struct {
+        uint8_t mode            : 2;
+        uint8_t lyc             : 1;
+        uint8_t mode_0_stat     : 1;
+        uint8_t mode_1_stat     : 1;
+        uint8_t mode_2_stat     : 1;
+        uint8_t lyc_stat        : 1;
+    } fields;
+
+    uint8_t value;
+} lcd_status_reg_t;
+
 typedef struct lcd_regs_t {
-    uint8_t control;
-    uint8_t status;
+    lcd_control_reg_t control;
+    lcd_status_reg_t status;
     uint8_t scy;
     uint8_t scx;
     uint8_t ly;

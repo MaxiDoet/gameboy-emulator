@@ -13,6 +13,8 @@
 #include "mmu.h"
 #include "rom.h"
 #include "lcd.h"
+#include "interrupts.h"
+#include "input.h"
 
 typedef struct emu_t {
     uint8_t *rom;

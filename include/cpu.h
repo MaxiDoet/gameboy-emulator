@@ -5,6 +5,10 @@
 
 #define CPU_DEBUG
 
+#ifdef CPU_DEBUG
+#define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__)
+#endif
+
 typedef struct cpu_regs_t {
     union {
         struct {

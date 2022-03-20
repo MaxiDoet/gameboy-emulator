@@ -6,6 +6,7 @@ void emulator_init()
 {
     cpu_init();
     lcd_init();
+    input_init();
 
     // Init SDL
     emu.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 160, 144, 0);
@@ -28,7 +29,7 @@ int emulator_load(const char *path)
 
     emu.rom = (uint8_t *) malloc(size);
     fread(emu.rom, size, 1, rom);
-    memcpy(mmu.rom, emu.rom, 0x7FFF);
+    memcpy(mmu.rom, emu.rom, size);
 
     printf("[emulator] Loaded %s (%ld bytes)\n", path, size);
 
