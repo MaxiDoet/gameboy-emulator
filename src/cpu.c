@@ -3250,7 +3250,6 @@ const void (*instruction_pointers[256])(void) = {
 void cpu_init()
 {
     cpu_reset();
-    cpu.regs.pc = 0x0000;
 }
 
 void cpu_reset()
@@ -3333,10 +3332,6 @@ void cpu_step()
 
     if (cpu.halted) {
         cpu.cycles += 1;
-    }
-
-    if (cpu.regs.pc == 0x00E9) {
-        cpu.regs.pc = 0x00EB;
     }
 
     /*

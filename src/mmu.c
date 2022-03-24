@@ -4,7 +4,10 @@ mmu_t mmu;
 
 void mmu_init()
 {
+    mmu.boot_rom_mapped = false;
 
+    // Load bootrom
+    memcpy(mmu.boot_rom, boot_rom, 0x100);
 }
 
 void mmu_load(uint8_t *data, uint16_t size)
@@ -52,6 +55,12 @@ void mmu_wb(uint16_t addr, uint8_t data)
             cpu.ifr = data;
         } else if (addr >= 0xFF40 && addr <= 0xFF4B) {
             lcd_wb(addr & 0xFF, data);
+        } else if (addr == 0xFF50) {
+            mmu.boot_rom_mapped = false;
+
+            #ifdef MMU_DEBUG
+            DEBUG_MMU("Unmapped boot rom\n");
+            #endif
         }
 
     } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
@@ -60,7 +69,9 @@ void mmu_wb(uint16_t addr, uint8_t data)
     } else if (addr == 0xFFFF) {
         cpu_enable_interrupts(data);
     } else {
-        printf("[mmu] Illegal write operation (%x:%x)\n", addr, data);
+        #ifdef MMU_DEBUG
+        DEBUG_MMU("[mmu] Illegal write operation (%x:%x)\n", addr, data);
+        #endif
     }
 
     #ifdef MMU_DEBUG
@@ -79,6 +90,11 @@ uint8_t mmu_rb(uint16_t addr)
     uint8_t result;
 
     if (addr >= 0x0000 && addr <= 0x7FFF) {
+        // Check if boot rom is still mapped
+        if (addr <= 0x0100 && mmu.boot_rom_mapped) {
+            result =  mmu.boot_rom[addr];
+        }
+
         // ROM (readonly)
         result = mmu.rom[addr];
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {

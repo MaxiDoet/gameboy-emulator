@@ -15,6 +15,7 @@
 #include "lcd.h"
 #include "interrupts.h"
 #include "input.h"
+#include "boot.h"
 
 typedef struct emu_t {
     uint8_t *rom;

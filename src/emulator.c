@@ -21,14 +21,14 @@ void emulator_init()
 
 int emulator_load(const char *path)
 {
-    FILE *rom = fopen(path, "rb");
+    FILE *rom_fp = fopen(path, "rb");
 
-    fseek(rom, 0, SEEK_END);
-    long size = ftell(rom);
-    fseek(rom, 0, SEEK_SET);
+    fseek(rom_fp, 0, SEEK_END);
+    long size = ftell(rom_fp);
+    fseek(rom_fp, 0, SEEK_SET);
 
     emu.rom = (uint8_t *) malloc(size);
-    fread(emu.rom, size, 1, rom);
+    fread(emu.rom, size, 1, rom_fp);
     memcpy(mmu.rom, emu.rom, size);
 
     printf("[emulator] Loaded %s (%ld bytes)\n", path, size);

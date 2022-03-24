@@ -27,6 +27,7 @@ typedef union {
 } serial_control_t;
 
 typedef struct mmu_t {
+    uint8_t boot_rom[0x0100];
     uint8_t rom[0x7FFF];
     uint8_t vram[0x1FFF];
     uint8_t sram[0x1FFF];
@@ -35,6 +36,7 @@ typedef struct mmu_t {
     uint8_t hram[0x007E];
 
     serial_control_t serial_control;
+    bool boot_rom_mapped;
 } mmu_t;
 
 extern mmu_t mmu;
