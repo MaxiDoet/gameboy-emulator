@@ -3,7 +3,9 @@
 
 #include <stdint.h>
 
-#define CPU_DEBUG
+//#define CPU_DEBUG
+//#define CPU_DEBUG_INSTRUCTIONS
+//#define CPU_DEBUG_INTERRUPTS
 
 #ifdef CPU_DEBUG
 #define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__)
@@ -62,6 +64,7 @@ typedef struct cpu_t {
 
 void cpu_init();
 void cpu_reset();
+void cpu_serve_interrupts();
 void cpu_step();
 void cpu_request_interrupt(uint8_t ifr);
 void cpu_enable_interrupts(uint8_t ie);

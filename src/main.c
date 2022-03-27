@@ -10,7 +10,11 @@ int main(int argc, char *argv[])
     }
 
     emulator_init();
-    emulator_load(argv[1]);
+
+    if (argc != 1) {
+        emulator_load(argv[1]);
+    }
+
     emulator_rom_info();
 
     bool running = true;
@@ -22,12 +26,15 @@ int main(int argc, char *argv[])
                 case SDL_QUIT:
                     running = false;
                     break;
+                case SDL_KEYDOWN:
+                case SDL_KEYUP:
+                    input_handle(&event.key);
+                    break;
             }
         }
 
         cpu_step();
         lcd_step(cpu.cycles - last_cycles);
-        interrupts_step();
 
         last_cycles = cpu.cycles;
     }

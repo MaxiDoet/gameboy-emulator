@@ -3269,7 +3269,7 @@ void cpu_enable_interrupts(uint8_t ie)
 {
     cpu.ie = ie;
 
-    #ifdef CPU_DEBUG
+    #if defined CPU_DEBUG && defined CPU_DEBUG_INTERRUPTS
     DEBUG_CPU("-> IE: %x\n", ie);
 
     if (cpu.ie & CPU_IE_VBLANK) {
@@ -3299,7 +3299,7 @@ void cpu_request_interrupt(uint8_t ifr)
 {
     cpu.ifr |= ifr;
 
-    #ifdef CPU_DEBUG
+    #if defined CPU_DEBUG && defined CPU_DEBUG_INTERRUPTS
     char *source_name;
 
     switch(ifr) {
@@ -3324,38 +3324,74 @@ void cpu_request_interrupt(uint8_t ifr)
     #endif
 }
 
+void cpu_serve_interrupts()
+{
+    if (cpu.ime && cpu.ifr && cpu.ie) {
+        uint8_t triggered = cpu.ie & cpu.ifr;
+
+        /* TODO: Wake up cpu even if ime is not set (if halted) */
+
+        if (triggered) {
+            cpu.regs.sp -= 2;
+            mmu_ww(cpu.regs.sp, cpu.regs.pc);
+        }
+
+        if (triggered & CPU_IF_VBLANK) {
+            cpu.regs.pc = 0x0040;
+            cpu.ifr &= ~CPU_IF_VBLANK;
+        } else if (triggered & CPU_IF_LCD_STAT) {
+            cpu.regs.pc = 0x0048;
+            cpu.ifr &= ~CPU_IF_LCD_STAT;
+        } else if (triggered & CPU_IF_TIMER) {
+            cpu.regs.pc = 0x0050;
+            cpu.ifr &= ~CPU_IF_TIMER;
+        } else if (triggered & CPU_IF_SERIAL) {
+            cpu.regs.pc = 0x0058;
+            cpu.ifr &= ~CPU_IF_SERIAL;
+        } else if (triggered & CPU_IF_JOYPAD) {
+            cpu.regs.pc = 0x0060;
+            cpu.ifr &= ~CPU_IF_SERIAL;
+        } else {
+            return;
+        }
+
+        cpu.ime = false;
+        cpu.halted = false;
+
+        #if defined CPU_DEBUG && defined CPU_DEBUG_INTERRUPTS
+        DEBUG_CPU("Interrupt after %d cycles\n", cpu.cycles);
+        #endif
+    }
+}
+
 void cpu_step()
 {
     if (cpu.stopped) {
         return;
     }
 
-    if (cpu.halted) {
-        cpu.cycles += 1;
-    }
+    cpu_serve_interrupts();
 
     /*
-    uint16_t start = 0x8000;
-    if (cpu.regs.pc == 0x0055) {
-        for (int i=0; i < 32; i++) {
-            printf("%02X | ", start + i*32);
-
-            for (int j=0; j < 32; j++) {
-                printf("%02X ", mmu_rb(start + i*32 + j));
-            }
-
-            printf("\n");
-        }
-
+    if (cpu.regs.pc == 0x0034) {
         cpu.stopped = true;
+        debug_mem_dump(0x8000, 0x100);
     }
-    */  
+    */
+
+   /*
+   if (cpu.regs.pc == 0x0100) {
+       cpu.stopped = true;
+       debug_reg_dump();
+       debug_mem_dump(0x9900, 0x100);
+   }
+   */
 
     uint8_t opcode = mmu_rb(cpu.regs.pc);
     cpu.regs.pc++;
     
     if (instruction_pointers[opcode]) {
-        #ifdef CPU_DEBUG
+        #if defined CPU_DEBUG && defined CPU_DEBUG_INSTRUCTIONS
         DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
                 cpu.regs.a,
                 cpu.regs.b,

@@ -5,6 +5,7 @@ emu_t emu;
 void emulator_init()
 {
     cpu_init();
+    mmu_init();
     lcd_init();
     input_init();
 
@@ -40,10 +41,10 @@ void emulator_rom_info()
 {
     char title[16];
 
-    printf("Rom:\n");
+    printf("[emulator] ROM info:\n");
 
     memcpy(title, &mmu.rom[ROM_TITLE_START], 16);
     printf("  - Title: %s\n", title);
-
+    printf("  - Cartridge Type: %x\n", mmu.rom[ROM_CARTRIDGE_TYPE]); 
     printf("  - Licensee code: %c%c\n", (char) mmu.rom[ROM_PUBLISHER_CODE_START], (char) mmu.rom[ROM_PUBLISHER_CODE_START + 1]);
 }

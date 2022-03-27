@@ -3,12 +3,14 @@
 
 #include "emulator.h"
 
+
 //#define MMU_DEBUG
 
 #ifdef MMU_DEBUG
 #define DEBUG_MMU(...) printf("[mmu] "); printf(__VA_ARGS__)
 #endif
 
+void mmu_init();
 void mmu_load(uint8_t *data, uint16_t size);
 void mmu_wb(uint16_t addr, uint8_t data);
 void mmu_ww(uint16_t addr, uint16_t data);

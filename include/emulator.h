@@ -13,8 +13,8 @@
 #include "mmu.h"
 #include "rom.h"
 #include "lcd.h"
-#include "interrupts.h"
 #include "input.h"
+#include "debug.h"
 #include "boot.h"
 
 typedef struct emu_t {

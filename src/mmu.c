@@ -4,7 +4,7 @@ mmu_t mmu;
 
 void mmu_init()
 {
-    mmu.boot_rom_mapped = false;
+    mmu.boot_rom_mapped = true;
 
     // Load bootrom
     memcpy(mmu.boot_rom, boot_rom, 0x100);
@@ -17,9 +17,15 @@ void mmu_load(uint8_t *data, uint16_t size)
 
 void mmu_wb(uint16_t addr, uint8_t data)
 {
-    if (addr >= 0x0000 && addr <= 0x7FFF) {
+    #ifdef MMU_DEBUG
+    DEBUG_MMU("wb addr: %04X value: %02X\n", addr, data);
+    #endif
+
+    if (addr <= 0x7FFF) {
         // ROM (readonly)
-        printf("[mmu] Illegal write operation inside ROM area (%x:%x)\n", addr, data);
+        #ifdef MMU_DEBUG
+        DEBUG_MMU("[mmu] Illegal write operation inside ROM area (%x:%x)\n", addr, data);
+        #endif
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         // VRAM
         mmu.vram[addr - 0x8000] = data;
@@ -73,10 +79,6 @@ void mmu_wb(uint16_t addr, uint8_t data)
         DEBUG_MMU("[mmu] Illegal write operation (%x:%x)\n", addr, data);
         #endif
     }
-
-    #ifdef MMU_DEBUG
-    DEBUG_MMU("wb addr: %04X value: %02X\n", addr, data);
-    #endif
 }
 
 void mmu_ww(uint16_t addr, uint16_t data)
@@ -89,14 +91,22 @@ uint8_t mmu_rb(uint16_t addr)
 {
     uint8_t result;
 
-    if (addr >= 0x0000 && addr <= 0x7FFF) {
+    if (addr <= 0x7FFF) {
         // Check if boot rom is still mapped
         if (addr <= 0x0100 && mmu.boot_rom_mapped) {
+            // Boot ROM
             result =  mmu.boot_rom[addr];
+        } else {
+            // ROM
+            result = mmu.rom[addr];
+
+            #ifdef MMU_DEBUG
+            if (mmu.boot_rom_mapped) {
+                DEBUG_MMU("Read operation from rom during mapped boot rom");
+            }
+            #endif
         }
 
-        // ROM (readonly)
-        result = mmu.rom[addr];
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         // VRAM
         result = mmu.vram[addr - 0x8000];
@@ -114,13 +124,14 @@ uint8_t mmu_rb(uint16_t addr)
     } else if (addr >= 0xFF00 && addr <= 0xFF7F) {
         // IO
         if (addr == 0xFF00) {
-            return input_read();
+            result = input_read();
         } else if (addr == 0xFF01) {
-            return 0;
+            result = 0;
         } else if (addr == 0xFF02) {
-            return mmu.serial_control.value;
+            result = mmu.serial_control.value;
         } else if (addr == 0xFF04) {
-            return (uint8_t) rand();
+            // Timer divider
+            result = (uint8_t) rand();
         } else if (addr == 0xFF0F) {
             // Interrupt flag
             result = cpu.ifr;
@@ -132,7 +143,9 @@ uint8_t mmu_rb(uint16_t addr)
     } else if (addr == 0xFFFF) {
         result = cpu.ie;
     } else {
-        printf("[mmu] Illegal read operation (%x)\n", addr);
+        #ifdef MMU_DEBUG
+        DEBUG_MMU("[mmu] Illegal read operation (%x)\n", addr);
+        #endif
         result = 0;
     }
 
