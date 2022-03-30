@@ -186,9 +186,9 @@ uint8_t lcd_rb(uint8_t addr)
 
 void draw_pixel(uint8_t x, uint8_t y, uint8_t color_index)
 {
-    lcd.pixels[y * LCD_WIDTH + x] = default_palette[color_index][0];
-    lcd.pixels[y * LCD_WIDTH + x + 1] = default_palette[color_index][1];
-    lcd.pixels[y * LCD_WIDTH + x + 2] = default_palette[color_index][2];
+    lcd.pixels[y * LCD_WIDTH + x][0] = default_palette[color_index][0];
+    lcd.pixels[y * LCD_WIDTH + x][1] = default_palette[color_index][1];
+    lcd.pixels[y * LCD_WIDTH + x][2] = default_palette[color_index][2];
 }
 
 void draw_bg_line(uint8_t line)
@@ -223,20 +223,6 @@ void draw_bg_line(uint8_t line)
     }
 }
 
-void lcd_test()
-{
-    // Copy some test data
-
-    uint8_t data[16] = {
-        0x00, 0x00, 0x3C, 0x3C, 0x5A, 0x5A, 0x66, 0x66,
-        0x66, 0x66, 0x5A, 0x5A, 0x3C, 0x3C, 0x00, 0x00
-    };
-
-    memcpy(&mmu.vram[0x0800], &data, 16);
-
-    memset(&mmu.vram[0x1800], 0x00, 0x400);
-}
-
 void lyc_check()
 {
     if (lcd.regs.ly == lcd.regs.lyc) {
@@ -253,8 +239,6 @@ void lcd_step(uint32_t cycles)
 {
     if (lcd.regs.control.fields.lcd_ppu_enable) {
         lcd.cycles += cycles;
-
-        //lcd_test();
 
         if (lcd.regs.status.fields.mode == LCD_MODE_HBLANK) {
             if (lcd.cycles >= 204) {
@@ -280,7 +264,7 @@ void lcd_step(uint32_t cycles)
 
                 if (lcd.regs.ly == 154) {
                     lyc_check();
-                    lcd_render();
+                    emulator_render();
                     lcd.regs.ly = 0;
                     lcd.regs.status.fields.mode = LCD_MODE_OAM;
                 }
@@ -304,21 +288,4 @@ void lcd_step(uint32_t cycles)
         }
 
     }
-}
-
-void lcd_render()
-{
-    for (int y=0; y < 144; y++) {
-        for (int x=0; x < 160; x++) {
-            SDL_SetRenderDrawColor(emu.renderer, 
-                lcd.pixels[y * LCD_WIDTH + x],
-                lcd.pixels[y * LCD_WIDTH + x + 1],
-                lcd.pixels[y * LCD_WIDTH + x + 2],
-                0xFF
-            );
-            SDL_RenderDrawPoint(emu.renderer, x, y);
-        }
-    }
-
-    SDL_RenderPresent(emu.renderer);
 }

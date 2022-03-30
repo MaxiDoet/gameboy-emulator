@@ -2719,15 +2719,6 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x11] = &instruction_cb_rl_c,
 };
 
-void instruction_cb()
-{
-    uint8_t opcode = mmu_rb(cpu.regs.pc++);
-    
-    if (cb_instruction_pointers[opcode]) {
-        (*cb_instruction_pointers[opcode])();
-    }
-}
-
 const char* instruction_labels[256] = {
     /* Control */
     [0x3F] = "CCF",
@@ -3242,9 +3233,7 @@ const void (*instruction_pointers[256])(void) = {
 
     /* Rotate and Shift */
     [0x07] = &instruction_rlca,
-    [0x17] = &instruction_rla,
-
-    [0xCB] = &instruction_cb
+    [0x17] = &instruction_rla
 };
 
 void cpu_init()
@@ -3372,51 +3361,37 @@ void cpu_step()
 
     cpu_serve_interrupts();
 
-    /*
-    if (cpu.regs.pc == 0x0034) {
-        cpu.stopped = true;
-        debug_mem_dump(0x8000, 0x100);
-    }
-    */
-
-   /*
-   if (cpu.regs.pc == 0x0100) {
-       cpu.stopped = true;
-       debug_reg_dump();
-       debug_mem_dump(0x9900, 0x100);
-   }
-   */
-
-    uint8_t opcode = mmu_rb(cpu.regs.pc);
-    cpu.regs.pc++;
+    uint8_t opcode = mmu_rb(cpu.regs.pc++);
     
-    if (instruction_pointers[opcode]) {
-        #if defined CPU_DEBUG && defined CPU_DEBUG_INSTRUCTIONS
-        DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
-                cpu.regs.a,
-                cpu.regs.b,
-                cpu.regs.c,
-                cpu.regs.d,
-                cpu.regs.e,
-                cpu.regs.h,
-                cpu.regs.l,
-                cpu.regs.f,
-                cpu.regs.pc - 1,
-                cpu.regs.sp,
-                cpu.ie,
-                cpu.ifr,
-                cpu.cycles,
-                opcode,
-                instruction_labels[opcode]
-            );
-        #endif
-        
-        (*instruction_pointers[opcode])();
-    } else {
-        #ifdef CPU_DEBUG
-        DEBUG_CPU("Unknown opcode: %02X at PC: %04X\n", opcode, cpu.regs.pc - 1);
-        #endif
+    #if defined CPU_DEBUG && defined CPU_DEBUG_INSTRUCTIONS
+    DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
+        cpu.regs.a,
+        cpu.regs.b,
+        cpu.regs.c,
+        cpu.regs.d,
+        cpu.regs.e,
+        cpu.regs.h,
+        cpu.regs.l,
+        cpu.regs.f,
+        cpu.regs.pc - 1,
+        cpu.regs.sp,
+        cpu.ie,
+        cpu.ifr,
+        cpu.cycles,
+        opcode,
+        instruction_labels[opcode]
+    );
+    #endif
 
-        cpu.stopped = true;
+    if (opcode != 0xCB) {
+        if (instruction_pointers[opcode]) {
+            (*instruction_pointers[opcode])();
+        }
+    } else {
+        opcode = mmu_rb(cpu.regs.pc++);
+
+        if (cb_instruction_pointers[opcode]) {
+            (*cb_instruction_pointers[opcode])();
+        }
     }
 }

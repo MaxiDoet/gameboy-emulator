@@ -26,6 +26,7 @@ typedef struct emu_t {
 void emulator_init();
 int emulator_load(const char *path);
 void emulator_rom_info();
+void emulator_render();
 
 extern emu_t emu;
 

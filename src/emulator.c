@@ -10,7 +10,7 @@ void emulator_init()
     input_init();
 
     // Init SDL
-    emu.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 160, 144, 0);
+    emu.window = SDL_CreateWindow("Emulator", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, LCD_WIDTH * LCD_SCALE, LCD_HEIGHT * LCD_SCALE, 0);
 
     if (!emu.window) {
         printf("Unable to create window!\n");
@@ -47,4 +47,41 @@ void emulator_rom_info()
     printf("  - Title: %s\n", title);
     printf("  - Cartridge Type: %x\n", mmu.rom[ROM_CARTRIDGE_TYPE]); 
     printf("  - Licensee code: %c%c\n", (char) mmu.rom[ROM_PUBLISHER_CODE_START], (char) mmu.rom[ROM_PUBLISHER_CODE_START + 1]);
+}
+
+void emulator_render()
+{
+    
+    for (int window_y=0; window_y < LCD_HEIGHT * LCD_SCALE; window_y++) {
+        for (int window_x=0; window_x < LCD_WIDTH * LCD_SCALE; window_x++) {
+            int screen_x = window_x / LCD_SCALE;
+            int screen_y = window_y / LCD_SCALE;
+
+            SDL_SetRenderDrawColor(emu.renderer, 
+                lcd.pixels[screen_y * LCD_WIDTH + screen_x][0],
+                lcd.pixels[screen_y * LCD_WIDTH + screen_x][1],
+                lcd.pixels[screen_y * LCD_WIDTH + screen_x][2],
+                0xFF
+            );
+
+            SDL_RenderDrawPoint(emu.renderer, window_x, window_y);
+        }
+    }
+
+    /*
+    for (int y=0; y < 144; y++) {
+        for (int x=0; x < 160; x++) {
+            SDL_SetRenderDrawColor(emu.renderer, 
+                lcd.pixels[y * LCD_WIDTH + x][0],
+                lcd.pixels[y * LCD_WIDTH + x][1],
+                lcd.pixels[y * LCD_WIDTH + x][2],
+                0xFF
+            );
+            
+            SDL_RenderDrawPoint(emu.renderer, x, y);
+        }
+    }
+    */
+
+    SDL_RenderPresent(emu.renderer);
 }
