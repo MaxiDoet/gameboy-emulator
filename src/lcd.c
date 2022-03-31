@@ -6,11 +6,6 @@ lcd_t lcd;
 #define DEBUG_LCD(...) printf("[lcd] "); printf(__VA_ARGS__)
 #endif
 
-#define LCD_MODE_HBLANK 0
-#define LCD_MODE_VBLANK 1
-#define LCD_MODE_OAM    2
-#define LCD_MODE_VRAM   3
-
 uint8_t default_palette[4][3] = {
     {0xFF, 0xFF, 0xFF}, // White
     {0x96, 0x96, 0x96}, // Light Grey

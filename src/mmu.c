@@ -93,7 +93,7 @@ uint8_t mmu_rb(uint16_t addr)
 
     if (addr <= 0x7FFF) {
         // Check if boot rom is still mapped
-        if (addr <= 0x0100 && mmu.boot_rom_mapped) {
+        if (addr <= 0x00FF && mmu.boot_rom_mapped) {
             // Boot ROM
             result =  mmu.boot_rom[addr];
         } else {

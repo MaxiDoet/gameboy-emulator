@@ -14,6 +14,7 @@
 #include "rom.h"
 #include "lcd.h"
 #include "input.h"
+#include "timer.h"
 #include "debug.h"
 #include "boot.h"
 

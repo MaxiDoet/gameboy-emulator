@@ -3,7 +3,6 @@
 
 #include "emulator.h"
 
-
 //#define MMU_DEBUG
 
 #ifdef MMU_DEBUG
@@ -30,7 +29,7 @@ typedef union {
 
 typedef struct mmu_t {
     uint8_t boot_rom[0x0100];
-    uint8_t rom[0x7FFF];
+    uint8_t rom[0x8000];
     uint8_t vram[0x1FFF];
     uint8_t sram[0x1FFF];
     uint8_t wram[0x0FFF];

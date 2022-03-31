@@ -54,6 +54,11 @@ typedef struct lcd_t {
     uint8_t palette[3][4];
 } lcd_t;
 
+#define LCD_MODE_HBLANK 0
+#define LCD_MODE_VBLANK 1
+#define LCD_MODE_OAM    2
+#define LCD_MODE_VRAM   3
+
 #define LCD_CONTROL_BGWINDOW_ENABLE (1 << 0)
 #define LCD_CONTROL_OBJ_ENABLE (1 << 1)
 #define LCD_CONTROL_LCD_ENABLE (1 << 7)

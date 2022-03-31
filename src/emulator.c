@@ -28,7 +28,7 @@ int emulator_load(const char *path)
     long size = ftell(rom_fp);
     fseek(rom_fp, 0, SEEK_SET);
 
-    emu.rom = (uint8_t *) malloc(size);
+    emu.rom = (uint8_t *) malloc(0x8000);
     fread(emu.rom, size, 1, rom_fp);
     memcpy(mmu.rom, emu.rom, size);
 
@@ -51,7 +51,6 @@ void emulator_rom_info()
 
 void emulator_render()
 {
-    
     for (int window_y=0; window_y < LCD_HEIGHT * LCD_SCALE; window_y++) {
         for (int window_x=0; window_x < LCD_WIDTH * LCD_SCALE; window_x++) {
             int screen_x = window_x / LCD_SCALE;
