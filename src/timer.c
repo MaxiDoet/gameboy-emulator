@@ -12,7 +12,7 @@ void timer_tima_increment()
     timer.tima++;
 
     #ifdef TIMER_DEBUG
-    DEBUG_TIMER("TIMA increment");
+    DEBUG_TIMER("TIMA increment\n");
     #endif
 
     if (timer.tima == 0) {
@@ -20,7 +20,7 @@ void timer_tima_increment()
         cpu_request_interrupt(CPU_IF_TIMER);
 
         #ifdef TIMER_DEBUG
-        DEBUG_TIMER("TIMA overflow");
+        DEBUG_TIMER("TIMA overflow\n");
         #endif
     }
 }
@@ -32,9 +32,11 @@ void timer_tick(uint32_t cycles)
     if ((timer.cycles % 16) == 0) {
         timer.div++;
 
+        /*
         #ifdef TIMER_DEBUG
-        DEBUG_TIMER("DIV increment");
+        DEBUG_TIMER("DIV increment\n");
         #endif
+        */
     }
 
     if (timer.tac & TIMER_TAC_ENABLE) {

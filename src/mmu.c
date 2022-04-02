@@ -2,6 +2,10 @@
 
 mmu_t mmu;
 
+#ifdef MMU_DEBUG
+#define DEBUG_MMU(...) printf("[mmu] "); printf(__VA_ARGS__)
+#endif
+
 void mmu_init()
 {
     mmu.boot_rom_mapped = true;
@@ -22,7 +26,11 @@ void mmu_wb(uint16_t addr, uint8_t data)
     #endif
 
     if (addr <= 0x7FFF) {
-        // ROM (readonly)
+        // ROM
+        if (emu.rom_info.cartridge_type != ROM_CARTRIDGE_TYPE_ROMONLY) {
+            mbc_wb(addr, data);
+        }
+
         #ifdef MMU_DEBUG
         DEBUG_MMU("[mmu] Illegal write operation inside ROM area (%x:%x)\n", addr, data);
         #endif
@@ -56,6 +64,18 @@ void mmu_wb(uint16_t addr, uint8_t data)
             }
         } else if (addr == 0xFF02) {
             mmu.serial_control.value = data;  
+        } else if (addr == 0xFF04) {
+            // Timer DIV
+            timer.div = 0;
+        } else if (addr == 0xFF05) {
+            // Timer TIMA
+            timer.tima = data;
+        } else if (addr == 0xFF06) {
+            // Timer TMA
+            timer.tma = data;
+        } else if (addr == 0xFF07) {
+            // Timer TAC
+            timer.tac = data;
         } else if (addr == 0xFF0F) {
             // Interrupt flags
             cpu.ifr = data;
@@ -95,10 +115,13 @@ uint8_t mmu_rb(uint16_t addr)
         // Check if boot rom is still mapped
         if (addr <= 0x00FF && mmu.boot_rom_mapped) {
             // Boot ROM
-            result =  mmu.boot_rom[addr];
+            result = mmu.boot_rom[addr];
         } else {
-            // ROM
-            result = mmu.rom[addr];
+            if (emu.rom_info.cartridge_type == ROM_CARTRIDGE_TYPE_ROMONLY) {
+                result = emu.rom[addr];
+            } else {
+                result = mbc_rb(addr);
+            }
 
             #ifdef MMU_DEBUG
             if (mmu.boot_rom_mapped) {
@@ -106,7 +129,6 @@ uint8_t mmu_rb(uint16_t addr)
             }
             #endif
         }
-
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         // VRAM
         result = mmu.vram[addr - 0x8000];
@@ -130,8 +152,17 @@ uint8_t mmu_rb(uint16_t addr)
         } else if (addr == 0xFF02) {
             result = mmu.serial_control.value;
         } else if (addr == 0xFF04) {
-            // Timer divider
-            result = (uint8_t) rand();
+            // Timer DIV
+            result = timer.div;
+        } else if (addr == 0xFF05) {
+            // Timer TIMA
+            result = timer.tima;
+        } else if (addr == 0xFF06) {
+            // Timer TMA
+            result = timer.tma;
+        } else if (addr == 0xFF07) {
+            // Timer TAC
+            result = timer.tac;
         } else if (addr == 0xFF0F) {
             // Interrupt flag
             result = cpu.ifr;

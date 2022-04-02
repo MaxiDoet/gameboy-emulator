@@ -13,6 +13,15 @@ uint8_t default_palette[4][3] = {
     {0x00, 0x00, 0x00}  // Black
 };
 
+/*
+uint8_t default_palette[4][3] = {
+    {0x9B, 0xBC, 0x0F}, // White
+    {0x8B, 0xAC, 0x0F}, // Light Grey
+    {0x30, 0x62, 0x30}, // Dark Grey
+    {0x0F, 0x38, 0x0F}  // Black
+};
+*/
+
 char *color_names[4] = {
     "White",
     "Light Gray",
@@ -215,6 +224,12 @@ void draw_bg_line(uint8_t line)
         #ifdef LCD_DEBUG
         DEBUG_LCD("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", line, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data + tile_offset, bg_tile_map + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
         #endif
+
+        /*
+        if (cpu.regs.pc == 0x0359) {
+            printf("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", line, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data + tile_offset, bg_tile_map + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
+        }
+        */
     }
 }
 

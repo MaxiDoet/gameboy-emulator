@@ -3,7 +3,7 @@
 
 #include "emulator.h"
 
-#define TIMER_DEBUG
+//#define TIMER_DEBUG
 
 #define TIMER_BASE_CLOCK        262144
 #define TIMER_TAC_ENABLE        (1 << 2)

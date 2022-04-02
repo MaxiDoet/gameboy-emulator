@@ -15,20 +15,22 @@
 #include "lcd.h"
 #include "input.h"
 #include "timer.h"
+#include "mbc.h"
 #include "debug.h"
 #include "boot.h"
 
-typedef struct emu_t {
+typedef struct emulator_t {
     uint8_t *rom;
+    rom_info_t rom_info;
     SDL_Window *window;
     SDL_Renderer *renderer;
-} emu_t;
+} emulator_t;
 
 void emulator_init();
 int emulator_load(const char *path);
-void emulator_rom_info();
+void emulator_print_rom_info();
 void emulator_render();
 
-extern emu_t emu;
+extern emulator_t emu;
 
 #endif

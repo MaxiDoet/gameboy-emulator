@@ -15,7 +15,7 @@ int main(int argc, char *argv[])
         emulator_load(argv[1]);
     }
 
-    emulator_rom_info();
+    emulator_print_rom_info();
 
     bool running = true;
     SDL_Event event;
@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
 
         cpu_step();
         lcd_step(cpu.cycles - last_cycles);
+        timer_tick(cpu.cycles - last_cycles);
 
         last_cycles = cpu.cycles;
     }

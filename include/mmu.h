@@ -5,10 +5,6 @@
 
 //#define MMU_DEBUG
 
-#ifdef MMU_DEBUG
-#define DEBUG_MMU(...) printf("[mmu] "); printf(__VA_ARGS__)
-#endif
-
 void mmu_init();
 void mmu_load(uint8_t *data, uint16_t size);
 void mmu_wb(uint16_t addr, uint8_t data);
@@ -30,11 +26,11 @@ typedef union {
 typedef struct mmu_t {
     uint8_t boot_rom[0x0100];
     uint8_t rom[0x8000];
-    uint8_t vram[0x1FFF];
-    uint8_t sram[0x1FFF];
-    uint8_t wram[0x0FFF];
-    uint8_t oam[0x009F];
-    uint8_t hram[0x007E];
+    uint8_t vram[0x2000];
+    uint8_t sram[0x2000];
+    uint8_t wram[0x2000];
+    uint8_t oam[0x0100];
+    uint8_t hram[0x007F];
 
     serial_control_t serial_control;
     bool boot_rom_mapped;
