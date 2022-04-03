@@ -31,7 +31,7 @@ typedef struct lcd_oam_t {
 
 typedef union {
     struct {
-        uint8_t bg_enable               : 1;
+        uint8_t bg_window_enable        : 1;
         uint8_t obj_enable              : 1;
         uint8_t obj_size                : 1;
         uint8_t bg_tile_map_area        : 1;

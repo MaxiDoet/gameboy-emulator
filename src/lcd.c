@@ -194,12 +194,17 @@ void draw_pixel(uint8_t x, uint8_t y, uint8_t color_index)
     lcd.pixels[y * LCD_WIDTH + x][2] = default_palette[color_index][2];
 }
 
-void draw_bg_line(uint8_t line)
+void draw_bg_line()
 {
-    uint16_t bg_tile_map = lcd.regs.control.fields.bg_tile_map_area ? 0x9C00 : 0x9800;
-    uint16_t bg_tile_data = lcd.regs.control.fields.bg_tile_data_area ? 0x8000 : 0x8800;
+    if (!lcd.regs.control.fields.bg_window_enable) {
+        memset(lcd.pixels, 0xFF, LCD_WIDTH * LCD_HEIGHT * 3);
+        return;
+    }
 
-    uint8_t scrolled_line = (line + lcd.regs.scy);
+    uint16_t bg_tile_map_area = lcd.regs.control.fields.bg_tile_map_area ? 0x9C00 : 0x9800;
+    uint16_t bg_tile_data_area = lcd.regs.control.fields.bg_tile_data_area ? 0x8000 : 0x8800;
+
+    uint8_t scrolled_line = (lcd.regs.ly + lcd.regs.scy);
     uint16_t scrolled_line_map_offset = (scrolled_line / 8) * TILES_PER_SCANLINE;
 
     for (int x=0; x < LCD_WIDTH; x++) {
@@ -210,7 +215,7 @@ void draw_bg_line(uint8_t line)
         uint8_t tile_offset_y = scrolled_line & 7;
 
         uint16_t map_offset = scrolled_line_map_offset + tile_x;
-        int tile_index = mmu_rb(bg_tile_map + map_offset);
+        uint8_t tile_index = mmu_rb(bg_tile_map_area + map_offset);
 
         uint16_t tile_offset;
 
@@ -220,15 +225,99 @@ void draw_bg_line(uint8_t line)
             tile_offset = (((int8_t) tile_index + 128) * BYTES_PER_TILE) + (tile_offset_y * 2);
         }
 
-        uint8_t bit_h = (mmu_rb(bg_tile_data + tile_offset) >> (7 - tile_offset_x)) & 1;
-        uint8_t bit_l = (mmu_rb(bg_tile_data + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_h = (mmu_rb(bg_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_l = (mmu_rb(bg_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
 
         uint8_t color_index = (bit_h << 1) | bit_l;
-        draw_pixel(x, line, color_index);
+        draw_pixel(x, lcd.regs.ly, color_index);
 
         #ifdef LCD_DEBUG
-        DEBUG_LCD("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", line, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data + tile_offset, bg_tile_map + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
+        DEBUG_LCD("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", lcd.regs.ly, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data_area + tile_offset, bg_tile_map_area + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
         #endif
+    }
+}
+
+void draw_window_line()
+{
+    if (!(lcd.regs.control.fields.window_enable && lcd.regs.control.fields.bg_window_enable)) {
+        return;
+    }
+
+    uint16_t window_tile_data_area = lcd.regs.control.fields.bg_tile_data_area ? 0x8000 : 0x8800;
+    uint16_t window_tile_map_area = lcd.regs.control.fields.window_tile_map_area ? 0x9C00 : 0x9800;
+
+    uint8_t scrolled_line = lcd.regs.ly - lcd.regs.wy; 
+    uint16_t scrolled_line_map_offset = (scrolled_line / 8) * TILES_PER_SCANLINE;
+
+    for (int x=0; x < LCD_WIDTH; x++) {
+        uint8_t scrolled_x = x + lcd.regs.wy - 7;
+
+        uint8_t tile_x = scrolled_x >> 3;
+        uint8_t tile_offset_x = scrolled_x & 7;
+        uint8_t tile_offset_y = scrolled_line & 7;
+
+        uint16_t map_offset = scrolled_line_map_offset + tile_x;
+        uint8_t tile_index = mmu_rb(window_tile_map_area + map_offset);
+
+        uint16_t tile_offset;
+
+        if (lcd.regs.control.fields.bg_tile_data_area) {
+            tile_offset = (tile_index * BYTES_PER_TILE) + (tile_offset_y * 2);
+        } else {
+            tile_offset = (((int8_t) tile_index + 128) * BYTES_PER_TILE) + (tile_offset_y * 2);
+        }
+
+        uint8_t bit_h = (mmu_rb(window_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_l = (mmu_rb(window_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+
+        uint8_t color_index = (bit_h << 1) | bit_l;
+        draw_pixel(x, lcd.regs.ly, color_index);
+
+        #ifdef LCD_DEBUG
+        DEBUG_LCD("draw_window_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", lcd.regs.ly, scrolled_x, scrolled_line, map_offset, tile_index, window_tile_data_area + tile_offset, window_tile_map_area + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
+        #endif
+    }
+}
+
+void draw_sprite(uint8_t num)
+{
+    uint16_t oam_offset = num * 4;
+    lcd_oam_t* oam = (lcd_oam_t *) &mmu.oam[oam_offset];
+    
+    uint8_t tile_index = oam->tile_index;
+    uint16_t tile_offset = tile_index * BYTES_PER_TILE;
+    uint8_t tile_x = oam->x;
+    uint8_t tile_y = oam->y;
+    bool flip_x = oam->flags.fields.x_flip;
+    bool flip_y = oam->flags.fields.y_flip;
+
+    if (tile_x == 0 || tile_x >= 160) return;
+    if (tile_y == 0 || tile_y >= 168) return;
+
+    for (int y=0; y < 8; y++) {
+        uint8_t tile_offset_y = y * 2;
+        uint8_t screen_y = tile_y - 16 + y;
+
+        for (int x=0; x < 8; x++) {
+            uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
+            uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
+
+            uint8_t screen_x = tile_x - 8 + x;
+
+            uint8_t color_index = (bit_h << 1) | bit_l;
+            draw_pixel(screen_x, screen_y, color_index);
+        }
+    }
+}
+
+void draw_sprites()
+{
+    if (!lcd.regs.control.fields.obj_enable) {
+        return;
+    }
+
+    for (int i=0; i < 40; i++) {
+        draw_sprite(i);
     }
 }
 
@@ -272,6 +361,7 @@ void lcd_step(uint32_t cycles)
                 lcd.regs.ly++;
 
                 if (lcd.regs.ly == 154) {
+                    draw_sprites();
                     lyc_check();
                     emulator_render();
                     lcd.regs.ly = 0;
@@ -292,7 +382,8 @@ void lcd_step(uint32_t cycles)
 
                 lcd.regs.status.fields.mode = LCD_MODE_HBLANK;
 
-                draw_bg_line(lcd.regs.ly);
+                draw_bg_line();
+                draw_window_line();
             }
         }
 

@@ -57,9 +57,11 @@ typedef struct cpu_t {
     int32_t cycles;
     uint8_t ie;
     uint8_t ifr;
+
     bool ime;
     bool halted;
     bool stopped;
+    bool debug_enabled;
 } cpu_t;
 
 void cpu_init();

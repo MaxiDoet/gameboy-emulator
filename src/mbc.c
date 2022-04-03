@@ -49,8 +49,12 @@ void mbc_wb(uint16_t addr, uint8_t data)
 {
     if (addr <= 0x1FFF) {
         // RAM and Timer enable
-        
-
+        if (mbc.type == MBC_TYPE_MBC1) {
+            mbc.ram_enabled = true;
+        } else if (mbc.type == MBC_TYPE_MBC3) {
+            mbc.ram_enabled = true;
+            mbc.rtc_enabled = true;
+        }
     } else if (addr >= 0x2000 && addr <= 0x3FFF) {
         if (data <= mbc.rom_banks) {
             if (data == 0x00) {

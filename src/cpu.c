@@ -3339,7 +3339,7 @@ void cpu_serve_interrupts()
             cpu.ifr &= ~CPU_IF_SERIAL;
         } else if (triggered & CPU_IF_JOYPAD) {
             cpu.regs.pc = 0x0060;
-            cpu.ifr &= ~CPU_IF_SERIAL;
+            cpu.ifr &= ~CPU_IF_JOYPAD;
         } else {
             return;
         }
@@ -3349,8 +3349,6 @@ void cpu_serve_interrupts()
 
         #if defined CPU_DEBUG && defined CPU_DEBUG_INTERRUPTS
         DEBUG_CPU("Interrupt after %d cycles\n", cpu.cycles);
-
-        debug_reg_dump();
         #endif
     }
 }
@@ -3364,25 +3362,28 @@ void cpu_step()
     cpu_serve_interrupts();
 
     uint8_t opcode = mmu_rb(cpu.regs.pc++);
-    
+
     #if defined CPU_DEBUG && defined CPU_DEBUG_INSTRUCTIONS
-    DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
-        cpu.regs.a,
-        cpu.regs.b,
-        cpu.regs.c,
-        cpu.regs.d,
-        cpu.regs.e,
-        cpu.regs.h,
-        cpu.regs.l,
-        cpu.regs.f,
-        cpu.regs.pc - 1,
-        cpu.regs.sp,
-        cpu.ie,
-        cpu.ifr,
-        cpu.cycles,
-        opcode,
-        instruction_labels[opcode]
-    );
+    if (cpu.debug_enabled) {
+        DEBUG_CPU("A: %02X B: %02X C: %02X D: %02X E: %02X H: %02X L: %02X | F: %02X PC: %04X SP: %04X IME: %d IE: %02X IF: %02X Cycles: %d | %02X | %s\n",
+            cpu.regs.a,
+            cpu.regs.b,
+            cpu.regs.c,
+            cpu.regs.d,
+            cpu.regs.e,
+            cpu.regs.h,
+            cpu.regs.l,
+            cpu.regs.f,
+            cpu.regs.pc - 1,
+            cpu.regs.sp,
+            cpu.ime ? 1 : 0,
+            cpu.ie,
+            cpu.ifr,
+            cpu.cycles,
+            opcode,
+            instruction_labels[opcode]
+        );
+    }
     #endif
 
     if (opcode != 0xCB) {
