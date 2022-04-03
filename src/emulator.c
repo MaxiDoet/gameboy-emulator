@@ -45,15 +45,41 @@ int emulator_load(const char *path)
 
     printf("[emulator] Loaded %s (%ld bytes)\n", path, size);
 
-    //debug_mem_dump(0x0000, 0x8000);
-
     // Title
     memcpy(emu.rom_info.title, &emu.rom[ROM_TITLE_OFFSET], 16);
 
     // Cartridge type
     emu.rom_info.cartridge_type = emu.rom[ROM_CARTRIDGE_TYPE_OFFSET];
     strcpy(emu.rom_info.cartridge_type_name, cartridge_type_names[emu.rom_info.cartridge_type]);
-    mbc.type = emu.rom_info.cartridge_type;
+    
+    switch(emu.rom_info.cartridge_type) {
+        case ROM_CARTRIDGE_TYPE_ROMONLY:
+            mbc.type = MBC_TYPE_NOMBC;
+            break;
+
+        case ROM_CARTRIDGE_TYPE_MBC1:
+        case ROM_CARTRIDGE_TYPE_MBC1RAM:
+        case ROM_CARTRIDGE_TYPE_MBC1RAMBAT:
+            mbc.type = MBC_TYPE_MBC1;
+            break;
+
+        case ROM_CARTRIDGE_TYPE_MBC2:
+        case ROM_CARTRIDGE_TYPE_MBC2BAT:
+            mbc.type = MBC_TYPE_MBC2;
+            break;
+
+        case ROM_CARTRIDGE_TYPE_MBC3TIMERBAT:
+        case ROM_CARTRIDGE_TYPE_MBC3TIMERRAMBAT:
+        case ROM_CARTRIDGE_TYPE_MBC3:
+        case ROM_CARTRIDGE_TYPE_MBC3RAM:
+        case ROM_CARTRIDGE_TYPE_MBC3RAMBAT:
+            mbc.type = MBC_TYPE_MBC3;
+            break;
+
+        default:
+            mbc.type = MBC_TYPE_NOMBC;
+            break;
+    }
 
     // ROM banks
     emu.rom_info.rom_banks = 2 << emu.rom[ROM_ROM_SIZE_OFFSET];
@@ -123,20 +149,31 @@ void emulator_render()
         }
     }
 
-    /*
-    for (int y=0; y < 144; y++) {
-        for (int x=0; x < 160; x++) {
-            SDL_SetRenderDrawColor(emu.renderer, 
-                lcd.pixels[y * LCD_WIDTH + x][0],
-                lcd.pixels[y * LCD_WIDTH + x][1],
-                lcd.pixels[y * LCD_WIDTH + x][2],
-                0xFF
-            );
-            
-            SDL_RenderDrawPoint(emu.renderer, x, y);
-        }
-    }
-    */
-
     SDL_RenderPresent(emu.renderer);
+}
+
+void emulator_run()
+{
+    bool running = true;
+    SDL_Event event;
+    uint32_t last_cycles = 0;
+    while (running) {
+        while (SDL_PollEvent(&event)) {
+            switch(event.type) {
+                case SDL_QUIT:
+                    running = false;
+                    break;
+                case SDL_KEYDOWN:
+                case SDL_KEYUP:
+                    input_handle(&event.key);
+                    break;
+            }
+        }
+
+        cpu_step();
+        lcd_step(cpu.cycles - last_cycles);
+        timer_tick(cpu.cycles - last_cycles);
+
+        last_cycles = cpu.cycles;
+    }
 }

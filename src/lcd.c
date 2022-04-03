@@ -35,7 +35,6 @@ void lcd_init()
     lcd.regs.status.fields.mode = 1;
 }
 
-
 void lcd_wb(uint8_t addr, uint8_t data)
 {
     switch(addr) {
@@ -213,7 +212,13 @@ void draw_bg_line(uint8_t line)
         uint16_t map_offset = scrolled_line_map_offset + tile_x;
         int tile_index = mmu_rb(bg_tile_map + map_offset);
 
-        uint16_t tile_offset = (tile_index * BYTES_PER_TILE) + (tile_offset_y * 2);
+        uint16_t tile_offset;
+
+        if (lcd.regs.control.fields.bg_tile_data_area) {
+            tile_offset = (tile_index * BYTES_PER_TILE) + (tile_offset_y * 2);
+        } else {
+            tile_offset = (((int8_t) tile_index + 128) * BYTES_PER_TILE) + (tile_offset_y * 2);
+        }
 
         uint8_t bit_h = (mmu_rb(bg_tile_data + tile_offset) >> (7 - tile_offset_x)) & 1;
         uint8_t bit_l = (mmu_rb(bg_tile_data + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
@@ -224,12 +229,6 @@ void draw_bg_line(uint8_t line)
         #ifdef LCD_DEBUG
         DEBUG_LCD("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", line, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data + tile_offset, bg_tile_map + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
         #endif
-
-        /*
-        if (cpu.regs.pc == 0x0359) {
-            printf("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", line, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data + tile_offset, bg_tile_map + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
-        }
-        */
     }
 }
 

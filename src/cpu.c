@@ -3349,6 +3349,8 @@ void cpu_serve_interrupts()
 
         #if defined CPU_DEBUG && defined CPU_DEBUG_INTERRUPTS
         DEBUG_CPU("Interrupt after %d cycles\n", cpu.cycles);
+
+        debug_reg_dump();
         #endif
     }
 }

@@ -11,6 +11,26 @@
 
 typedef union {
     struct {
+        uint8_t palette_number_cgb      : 3;
+        uint8_t tile_vram_bank          : 1;
+        uint8_t palette_number_non_cgb  : 1;
+        uint8_t x_flip                  : 1;
+        uint8_t y_flip                  : 1;
+        uint8_t bg_window_over_obj      : 1;
+    } fields;
+
+    uint8_t value;
+} lcd_oam_flags_t;
+
+typedef struct lcd_oam_t {
+    uint8_t y;
+    uint8_t x;
+    uint8_t tile_index;
+    lcd_oam_flags_t flags;
+} lcd_oam_t;
+
+typedef union {
+    struct {
         uint8_t bg_enable               : 1;
         uint8_t obj_enable              : 1;
         uint8_t obj_size                : 1;
@@ -40,10 +60,15 @@ typedef union {
 typedef struct lcd_regs_t {
     lcd_control_reg_t control;
     lcd_status_reg_t status;
+    
+    /* Scrolling */
     uint8_t scy;
     uint8_t scx;
     uint8_t ly;
     uint8_t lyc;
+    uint8_t wy;
+    uint8_t wx;
+
     uint8_t bgp;
 } lcd_regs_t;
 

@@ -27,18 +27,16 @@ void timer_tima_increment()
 
 void timer_tick(uint32_t cycles)
 {
-    timer.cycles += cycles / TIMER_BASE_CLOCK;
+    timer.div_counter += cycles;
+    timer.tima_counter += cycles;
 
-    if ((timer.cycles % 16) == 0) {
+    // DIV
+    if (timer.div_counter >= TIMER_CYCLES_PER_DIV) {
+        timer.div_counter = 0;
         timer.div++;
-
-        /*
-        #ifdef TIMER_DEBUG
-        DEBUG_TIMER("DIV increment\n");
-        #endif
-        */
     }
 
+    // TIMA
     if (timer.tac & TIMER_TAC_ENABLE) {
         uint8_t clock_select = timer.tac & 3;
         int divider;
@@ -61,7 +59,8 @@ void timer_tick(uint32_t cycles)
                 break;
         }
 
-        if ((timer.cycles % divider) == 0) {
+        if (timer.tima_counter >= (CYCLES_PER_SECOND / divider)) {
+            timer.tima_counter = 0;
             timer_tima_increment();
         }
     }

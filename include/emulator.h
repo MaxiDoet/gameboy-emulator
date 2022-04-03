@@ -26,10 +26,14 @@ typedef struct emulator_t {
     SDL_Renderer *renderer;
 } emulator_t;
 
+#define CYCLES_PER_SECOND 4194304
+#define CYCLES_PER_FRAME 69905
+
 void emulator_init();
 int emulator_load(const char *path);
 void emulator_print_rom_info();
 void emulator_render();
+void emulator_run();
 
 extern emulator_t emu;
 

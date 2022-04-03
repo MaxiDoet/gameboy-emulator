@@ -17,28 +17,7 @@ int main(int argc, char *argv[])
 
     emulator_print_rom_info();
 
-    bool running = true;
-    SDL_Event event;
-    uint32_t last_cycles = 0;
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            switch(event.type) {
-                case SDL_QUIT:
-                    running = false;
-                    break;
-                case SDL_KEYDOWN:
-                case SDL_KEYUP:
-                    input_handle(&event.key);
-                    break;
-            }
-        }
-
-        cpu_step();
-        lcd_step(cpu.cycles - last_cycles);
-        timer_tick(cpu.cycles - last_cycles);
-
-        last_cycles = cpu.cycles;
-    }
+    emulator_run();
 
     SDL_Quit();
     return 0;
