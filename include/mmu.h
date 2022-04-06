@@ -3,7 +3,9 @@
 
 #include "emulator.h"
 
-//#define MMU_DEBUG
+#define MMU_DEBUG
+//#define MMU_DEBUG_ROM
+//#define MMU_DEBUG_IO
 
 void mmu_init();
 void mmu_load(uint8_t *data, uint16_t size);

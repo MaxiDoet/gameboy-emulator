@@ -6,7 +6,6 @@ timer_t timer;
 #define DEBUG_TIMER(...) printf("[timer] "); printf(__VA_ARGS__)
 #endif
 
-
 void timer_tima_increment()
 {
     timer.tima++;
@@ -34,6 +33,10 @@ void timer_tick(uint32_t cycles)
     if (timer.div_counter >= TIMER_CYCLES_PER_DIV) {
         timer.div_counter = 0;
         timer.div++;
+
+        #ifdef TIMER_DEBUG
+        DEBUG_TIMER("DIV increment\n");
+        #endif
     }
 
     // TIMA

@@ -100,23 +100,24 @@ void lcd_wb(uint8_t addr, uint8_t data)
 
         // DMA
         case 0x46:
-
-            #ifdef LCD_DEBUG
-            DEBUG_LCD("-> DMA: %x\n", data);
-            DEBUG_LCD("DMA transfer\n Source: %02X00\n Destination: FE00\n", data);
-            #endif
-
             if (data > 0xDF) {
                 return;
             }
 
-            uint16_t source = (data << 8);
+            uint16_t source = data * 0x100;
             uint16_t destination = 0xFE00;
 
             // Transfer
-            for (int i=0; i < 160; i++) {
+            for (int i=0; i < 0x9F; i++) {
                 mmu_wb(destination + i, mmu_rb(source + i));
             }
+
+            cpu.cycles += 160;
+
+            #ifdef LCD_DEBUG
+            DEBUG_LCD("-> DMA: %x\n", data);
+            DEBUG_LCD("DMA transfer\n Source: %04X\n Destination: FE00\n", source);
+            #endif
 
             break;
 
@@ -230,10 +231,6 @@ void draw_bg_line()
 
         uint8_t color_index = (bit_h << 1) | bit_l;
         draw_pixel(x, lcd.regs.ly, color_index);
-
-        #ifdef LCD_DEBUG
-        DEBUG_LCD("draw_bg_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", lcd.regs.ly, scrolled_x, scrolled_line, map_offset, tile_index, bg_tile_data_area + tile_offset, bg_tile_map_area + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
-        #endif
     }
 }
 
@@ -272,10 +269,6 @@ void draw_window_line()
 
         uint8_t color_index = (bit_h << 1) | bit_l;
         draw_pixel(x, lcd.regs.ly, color_index);
-
-        #ifdef LCD_DEBUG
-        DEBUG_LCD("draw_window_line() line: %d scrolled_x: %d scrolled_line: %d map_offset: %x tile_index: %d tile_addr: %04X map_addr: %04X tile_x: %d tile_offset_x: %d tile_offset_y: %d color_index: %d\n", lcd.regs.ly, scrolled_x, scrolled_line, map_offset, tile_index, window_tile_data_area + tile_offset, window_tile_map_area + map_offset, tile_x, tile_offset_x, tile_offset_y, color_index);
-        #endif
     }
 }
 
@@ -286,8 +279,8 @@ void draw_sprite(uint8_t num)
     
     uint8_t tile_index = oam->tile_index;
     uint16_t tile_offset = tile_index * BYTES_PER_TILE;
-    uint8_t tile_x = oam->x;
-    uint8_t tile_y = oam->y;
+    uint8_t tile_x = oam->x - 8;
+    uint8_t tile_y = oam->y - 16;
     bool flip_x = oam->flags.fields.x_flip;
     bool flip_y = oam->flags.fields.y_flip;
 
@@ -296,13 +289,13 @@ void draw_sprite(uint8_t num)
 
     for (int y=0; y < 8; y++) {
         uint8_t tile_offset_y = y * 2;
-        uint8_t screen_y = tile_y - 16 + y;
+        uint8_t screen_y = flip_y ? (tile_y + 8 - y) : (tile_y + y);
 
         for (int x=0; x < 8; x++) {
             uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
             uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
 
-            uint8_t screen_x = tile_x - 8 + x;
+            uint8_t screen_x = flip_x ? (tile_x + 8 - x) : (tile_x + x);
 
             uint8_t color_index = (bit_h << 1) | bit_l;
             draw_pixel(screen_x, screen_y, color_index);

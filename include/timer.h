@@ -5,9 +5,8 @@
 
 //#define TIMER_DEBUG
 
-#define TIMER_CYCLES_PER_DIV    16384
-
 #define TIMER_TAC_ENABLE        (1 << 2)
+#define TIMER_CYCLES_PER_DIV    16384
 #define TIMER_TAC_CLOCK_1024    0
 #define TIMER_TAC_CLOCK_16      1
 #define TIMER_TAC_CLOCK_64      2

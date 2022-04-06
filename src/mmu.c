@@ -21,17 +21,13 @@ void mmu_load(uint8_t *data, uint16_t size)
 
 void mmu_wb(uint16_t addr, uint8_t data)
 {
-    #ifdef MMU_DEBUG
-    DEBUG_MMU("wb addr: %04X value: %02X\n", addr, data);
-    #endif
-
     if (addr <= 0x7FFF) {
         // ROM
         if (emu.rom_info.cartridge_type != ROM_CARTRIDGE_TYPE_ROMONLY) {
             mbc_wb(addr, data);
         }
 
-        #ifdef MMU_DEBUG
+        #if defined MMU_DEBUG && defined MMU_DEBUG_ROM
         DEBUG_MMU("[mmu] Illegal write operation inside ROM area (%x:%x)\n", addr, data);
         #endif
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
@@ -89,6 +85,10 @@ void mmu_wb(uint16_t addr, uint8_t data)
             #endif
         }
 
+        #if defined MMU_DEBUG && defined MMU_DEBUG_IO
+        DEBUG_MMU("Write to IO (%04X) <- %x\n", addr, data);
+        #endif
+
     } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
         // HRAM
         mmu.hram[addr - 0xFF80] = data;
@@ -122,13 +122,11 @@ uint8_t mmu_rb(uint16_t addr)
             } else {
                 result = mbc_rb(addr);
             }
-
-            #ifdef MMU_DEBUG
-            if (mmu.boot_rom_mapped) {
-                DEBUG_MMU("Read operation from rom during mapped boot rom");
-            }
-            #endif
         }
+
+        #if defined MMU_DEBUG && defined MMU_DEBUG_ROM
+        DEBUG_MMU("Read from ROM (%04X) -> %x\n", addr, result);
+        #endif
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         // VRAM
         result = mmu.vram[addr - 0x8000];
@@ -169,6 +167,10 @@ uint8_t mmu_rb(uint16_t addr)
         } else if (addr >= 0xFF40 && addr <= 0xFF4B) {
             result = lcd_rb(addr & 0xFF);
         }
+
+        #if defined MMU_DEBUG && defined MMU_DEBUG_IO
+        DEBUG_MMU("Read from IO (%04X) -> %x\n", addr, result);
+        #endif
     } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
         result = mmu.hram[addr - 0xFF80];
     } else if (addr == 0xFFFF) {
@@ -179,10 +181,6 @@ uint8_t mmu_rb(uint16_t addr)
         #endif
         result = 0;
     }
-
-    #ifdef MMU_DEBUG
-    DEBUG_MMU("rb addr: %04X value: %02X\n", addr, result);
-    #endif
 
     return result;
 }

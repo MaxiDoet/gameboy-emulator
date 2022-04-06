@@ -2150,6 +2150,57 @@ void instruction_cb_swap_a()
     cpu.cycles += 8;
 }
 
+void instruction_cb_swap_b()
+{
+    cpu.regs.b = ((cpu.regs.b >> 4) & 0xF) | ((cpu.regs.b << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_c()
+{
+    cpu.regs.c = ((cpu.regs.c >> 4) & 0xF) | ((cpu.regs.c << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_d()
+{
+    cpu.regs.d = ((cpu.regs.d >> 4) & 0xF) | ((cpu.regs.d << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_e()
+{
+    cpu.regs.e = ((cpu.regs.e >> 4) & 0xF) | ((cpu.regs.e << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_h()
+{
+    cpu.regs.h = ((cpu.regs.h >> 4) & 0xF) | ((cpu.regs.h << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_l()
+{
+    cpu.regs.l = ((cpu.regs.l >> 4) & 0xF) | ((cpu.regs.l << 4) & 0xF0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_swap_hlp()
+{
+    uint16_t value = mmu_rb(cpu.regs.hl);
+    mmu_wb(cpu.regs.hl, ((value >> 4) & 0xF) | ((value << 4) & 0xF0));
+
+    cpu.regs.pc += 1;
+    cpu.cycles += 8;
+}
+
 void instruction_cb_res_0_a()
 {
     cpu.regs.a &= ~(1 << 0);
@@ -2558,6 +2609,126 @@ void instruction_cb_bit_7_hlp()
     cpu.cycles += 8;
 }
 
+void instruction_cb_bit_0_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_b()
+{
+    uint8_t value = cpu.regs.b;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+
+    cpu.cycles += 8;
+}
+
 void instruction_cb_srl_a()
 {
     cpu.regs.a >>= 1;
@@ -2659,7 +2830,15 @@ void instruction_cb_rl_c()
 }
 
 const void (*cb_instruction_pointers[256])(void) = {
+    /* Swap */
     [0x37] = &instruction_cb_swap_a,
+    [0x30] = &instruction_cb_swap_b,
+    [0x31] = &instruction_cb_swap_c,
+    [0x32] = &instruction_cb_swap_d,
+    [0x33] = &instruction_cb_swap_e,
+    [0x34] = &instruction_cb_swap_h,
+    [0x35] = &instruction_cb_swap_l,
+    [0x36] = &instruction_cb_swap_hlp,
 
     [0x87] = &instruction_cb_res_0_a,
     [0x8F] = &instruction_cb_res_1_a,
@@ -2705,6 +2884,15 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x6E] = &instruction_cb_bit_5_hlp,
     [0x76] = &instruction_cb_bit_6_hlp,
     [0x7E] = &instruction_cb_bit_7_hlp,
+
+    [0x40] = &instruction_cb_bit_0_b,
+    [0x48] = &instruction_cb_bit_1_b,
+    [0x50] = &instruction_cb_bit_2_b,
+    [0x58] = &instruction_cb_bit_3_b,
+    [0x60] = &instruction_cb_bit_4_b,
+    [0x68] = &instruction_cb_bit_5_b,
+    [0x70] = &instruction_cb_bit_6_b,
+    [0x78] = &instruction_cb_bit_7_b,
 
     [0x3F] = &instruction_cb_srl_a,
     [0x38] = &instruction_cb_srl_b,
@@ -3361,6 +3549,9 @@ void cpu_step()
 
     cpu_serve_interrupts();
 
+    // Breakpoints
+    if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x02A8) cpu.debug_enabled = true;
+    
     uint8_t opcode = mmu_rb(cpu.regs.pc++);
 
     #if defined CPU_DEBUG && defined CPU_DEBUG_INSTRUCTIONS
@@ -3389,12 +3580,24 @@ void cpu_step()
     if (opcode != 0xCB) {
         if (instruction_pointers[opcode]) {
             (*instruction_pointers[opcode])();
+        } else {
+            #ifdef CPU_DEBUG
+            DEBUG_CPU("Unknown opcode %02X at PC: %04X\n", opcode, cpu.regs.pc - 1);
+            #endif
+
+            cpu.stopped = true;
         }
     } else {
         opcode = mmu_rb(cpu.regs.pc++);
 
         if (cb_instruction_pointers[opcode]) {
             (*cb_instruction_pointers[opcode])();
+        } else {
+            #ifdef CPU_DEBUG
+            DEBUG_CPU("Unknown CB opcode %02X at PC: %04X\n", opcode, cpu.regs.pc - 2);
+            #endif
+
+            cpu.stopped = true;
         }
     }
 }

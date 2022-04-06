@@ -1,7 +1,7 @@
 #ifndef _input_h
 #define _input_h
 
-//#define INPUT_DEBUG
+#define INPUT_DEBUG
 
 typedef struct input_state_t {
     uint8_t a           : 1;

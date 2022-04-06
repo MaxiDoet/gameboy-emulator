@@ -21,6 +21,9 @@ typedef struct mbc_t {
     uint8_t* rom;
     uint8_t* ram;
 
+    // MBC1
+    int banking_mode;
+    
     bool ram_enabled;
     bool rtc_enabled;
 } mbc_t;

@@ -28,9 +28,10 @@ uint8_t mbc_rb(uint16_t addr)
 
     if (addr <= 0x3FFF) {
         // Fixed rom bank except for MBC1
-
         if (mbc.type == MBC_TYPE_MBC1) {
-            // Switchable bank
+            if (mbc.banking_mode == 0) {
+                result = mbc.rom[addr];
+            }
         } else {
             result = mbc.rom[addr];
         }

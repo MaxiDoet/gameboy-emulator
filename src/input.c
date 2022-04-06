@@ -32,6 +32,10 @@ uint8_t input_read()
     if (input.direction) result &= ~(1 << 4);
     if (input.action) result &= ~(1 << 5);
 
+    #ifdef INPUT_DEBUG
+    DEBUG_INPUT("read: %x\n", result);
+    #endif
+
     return result;
 }
 
@@ -93,4 +97,6 @@ void input_handle(SDL_KeyboardEvent *event)
         default:
             break;            
     }
+
+    cpu_request_interrupt(CPU_IF_JOYPAD);
 }
