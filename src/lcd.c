@@ -298,7 +298,10 @@ void draw_sprite(uint8_t num)
             uint8_t screen_x = flip_x ? (tile_x + 8 - x) : (tile_x + x);
 
             uint8_t color_index = (bit_h << 1) | bit_l;
-            draw_pixel(screen_x, screen_y, color_index);
+
+            if (color_index != 0) {
+                draw_pixel(screen_x, screen_y, color_index);
+            }
         }
     }
 }
@@ -317,12 +320,13 @@ void draw_sprites()
 void lyc_check()
 {
     if (lcd.regs.ly == lcd.regs.lyc) {
+        lcd.regs.status.fields.lyc = 1;
+
         if (lcd.regs.status.fields.lyc_stat) {
-            lcd.regs.status.fields.lyc = 1;
             cpu_request_interrupt(CPU_IF_LCD_STAT);
-        } else {
-            lcd.regs.status.fields.lyc = 0;
         }
+    } else {
+        lcd.regs.status.fields.lyc = 0;
     }
 }
 
@@ -340,7 +344,7 @@ void lcd_step(uint32_t cycles)
                     lcd.regs.status.fields.mode = LCD_MODE_VBLANK;                    
                     cpu_request_interrupt(CPU_IF_VBLANK);
                } else {
-                    if (lcd.regs.status.fields.mode_0_stat) {
+                    if (lcd.regs.status.fields.mode_2_stat) {
                         cpu_request_interrupt(CPU_IF_LCD_STAT);
                     }
 
