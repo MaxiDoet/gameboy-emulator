@@ -3,7 +3,7 @@
 
 #include "emulator.h"
 
-#define MMU_DEBUG
+//#define MMU_DEBUG
 //#define MMU_DEBUG_ROM
 //#define MMU_DEBUG_IO
 

@@ -125,20 +125,19 @@ void lcd_wb(uint8_t addr, uint8_t data)
         case 0x47:
             lcd.regs.bgp = data;
 
+            lcd.palette[0] = lcd.regs.bgp & 3;
+            lcd.palette[1] = (lcd.regs.bgp >> 2) & 3;
+            lcd.palette[2] = (lcd.regs.bgp >> 4) & 3;
+            lcd.palette[3] = (lcd.regs.bgp >> 6) & 3;
+
             #ifdef LCD_DEBUG
             DEBUG_LCD("-> BGP: %x\n", data);
 
             DEBUG_LCD("Palette:\n");
-
-            uint8_t color0 = lcd.regs.bgp & 3;
-            uint8_t color1 = (lcd.regs.bgp >> 3) & 3;
-            uint8_t color2 = (lcd.regs.bgp >> 5) & 3;
-            uint8_t color3 = (lcd.regs.bgp >> 7) & 3;
-            
-            DEBUG_LCD(" - 0 %s\n", color_names[color0]);
-            DEBUG_LCD(" - 1 %s\n", color_names[color1]);
-            DEBUG_LCD(" - 2 %s\n", color_names[color2]);
-            DEBUG_LCD(" - 3 %s\n", color_names[color3]);
+            DEBUG_LCD(" - 0 %s\n", color_names[lcd.palette[0]]);
+            DEBUG_LCD(" - 1 %s\n", color_names[lcd.palette[1]]);
+            DEBUG_LCD(" - 2 %s\n", color_names[lcd.palette[2]]);
+            DEBUG_LCD(" - 3 %s\n", color_names[lcd.palette[3]]);
 
             #endif
     }
@@ -190,9 +189,9 @@ uint8_t lcd_rb(uint8_t addr)
 
 void draw_pixel(uint8_t x, uint8_t y, uint8_t color_index)
 {
-    lcd.pixels[y * LCD_WIDTH + x][0] = default_palette[color_index][0];
-    lcd.pixels[y * LCD_WIDTH + x][1] = default_palette[color_index][1];
-    lcd.pixels[y * LCD_WIDTH + x][2] = default_palette[color_index][2];
+    lcd.pixels[y * LCD_WIDTH + x][0] = default_palette[lcd.palette[color_index]][0];
+    lcd.pixels[y * LCD_WIDTH + x][1] = default_palette[lcd.palette[color_index]][1];
+    lcd.pixels[y * LCD_WIDTH + x][2] = default_palette[lcd.palette[color_index]][2];
 }
 
 void draw_bg_line()

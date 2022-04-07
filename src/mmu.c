@@ -41,7 +41,7 @@ void mmu_wb(uint16_t addr, uint8_t data)
         mmu.wram[addr - 0xC000] = data;
     } else if (addr >= 0xFE00 && addr <= 0xFE9F) {
         // OAM
-        mmu.oam[addr - 0xFE00] = data;
+        mmu.oam[addr - 0xFE00] = data; 
     } else if (addr >= 0xFEA0 && addr <= 0xFEFF) {
         return;
     } else if (addr >= 0xFF00 && addr <= 0xFF7F) {

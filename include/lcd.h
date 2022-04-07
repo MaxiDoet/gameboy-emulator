@@ -76,7 +76,7 @@ typedef struct lcd_t {
     uint8_t pixels[LCD_WIDTH * LCD_HEIGHT][3];
     lcd_regs_t regs;
     uint32_t cycles;
-    uint8_t palette[3][4];
+    uint8_t palette[4];
 } lcd_t;
 
 #define LCD_MODE_HBLANK 0
