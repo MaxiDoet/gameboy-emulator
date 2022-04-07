@@ -225,8 +225,8 @@ void draw_bg_line()
             tile_offset = (((int8_t) tile_index + 128) * BYTES_PER_TILE) + (tile_offset_y * 2);
         }
 
-        uint8_t bit_h = (mmu_rb(bg_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
-        uint8_t bit_l = (mmu_rb(bg_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_h = (mmu_rb(bg_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_l = (mmu_rb(bg_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
 
         uint8_t color_index = (bit_h << 1) | bit_l;
         draw_pixel(x, lcd.regs.ly, color_index);
