@@ -6,7 +6,7 @@ lcd_t lcd;
 #define DEBUG_LCD(...) printf("[lcd] "); printf(__VA_ARGS__)
 #endif
 
-uint8_t default_palette[4][3] = {
+const uint8_t default_palette[4][3] = {
     {0xFF, 0xFF, 0xFF}, // White
     {0x96, 0x96, 0x96}, // Light Grey
     {0x3B, 0x3B, 0x3B}, // Dark Grey
@@ -22,7 +22,7 @@ uint8_t default_palette[4][3] = {
 };
 */
 
-char *color_names[4] = {
+const char *color_names[4] = {
     "White",
     "Light Gray",
     "Dark Gray",
@@ -263,8 +263,8 @@ void draw_window_line()
             tile_offset = (((int8_t) tile_index + 128) * BYTES_PER_TILE) + (tile_offset_y * 2);
         }
 
-        uint8_t bit_h = (mmu_rb(window_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
-        uint8_t bit_l = (mmu_rb(window_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_h = (mmu_rb(window_tile_data_area + tile_offset + 1) >> (7 - tile_offset_x)) & 1;
+        uint8_t bit_l = (mmu_rb(window_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
 
         uint8_t color_index = (bit_h << 1) | bit_l;
         draw_pixel(x, lcd.regs.ly, color_index);
@@ -291,8 +291,8 @@ void draw_sprite(uint8_t num)
         uint8_t screen_y = flip_y ? (tile_y + 8 - y) : (tile_y + y);
 
         for (int x=0; x < 8; x++) {
-            uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
-            uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
+            uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
+            uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
 
             uint8_t screen_x = flip_x ? (tile_x + 8 - x) : (tile_x + x);
 

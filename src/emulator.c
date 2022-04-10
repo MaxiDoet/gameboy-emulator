@@ -40,6 +40,7 @@ int emulator_load(const char *path)
 
     emu.rom = (uint8_t *) malloc(size);
     fread(emu.rom, size, 1, rom_fp);
+    fclose(rom_fp);
 
     memcpy(mmu.rom, emu.rom, (size > 0x8000) ? 0x8000 : size);
 

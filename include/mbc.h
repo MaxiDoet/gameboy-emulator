@@ -26,6 +26,8 @@ typedef struct mbc_t {
     
     bool ram_enabled;
     bool rtc_enabled;
+
+    bool inserted;
 } mbc_t;
 
 extern mbc_t mbc;
