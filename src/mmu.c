@@ -8,6 +8,13 @@ mmu_t mmu;
 
 void mmu_init()
 {
+    memset(mmu.rom, 0x00, 0x8000);
+    memset(mmu.vram, 0x00, 0x2000);
+    memset(mmu.sram, 0x00, 0x2000);
+    memset(mmu.wram, 0x00, 0x8000);
+    memset(mmu.oam, 0x00, 0x0100);
+    memset(mmu.hram, 0x00, 0x007F);
+
     mmu.boot_rom_mapped = true;
 
     // Load bootrom
@@ -51,15 +58,17 @@ void mmu_wb(uint16_t addr, uint8_t data)
             input_write(data);            
         } else if (addr == 0xFF01) {
             // Serial transfer data
-            if (mmu.serial_control.value == 0x81) {
-                #ifdef MMU_DEBUG
-                DEBUG_MMU("Serial Transfer -> %c\n", data);
-                #endif
-
-                mmu.serial_control.fields.start_flag = 0;
-            }
+            mmu.serial_data = data;
         } else if (addr == 0xFF02) {
             mmu.serial_control.value = data;  
+
+            if (mmu.serial_control.fields.start_flag) {
+                #ifdef MMU_DEBUG
+                DEBUG_MMU("Serial Transfer -> %c\n", mmu.serial_data);
+                #endif
+
+                //cpu_request_interrupt(CPU_IF_SERIAL);
+            }
         } else if (addr == 0xFF04) {
             // Timer DIV
             timer.div = 0;
@@ -146,9 +155,9 @@ uint8_t mmu_rb(uint16_t addr)
         if (addr == 0xFF00) {
             result = input_read();
         } else if (addr == 0xFF01) {
-            result = 0;
+            result = mmu.serial_data;
         } else if (addr == 0xFF02) {
-            result = mmu.serial_control.value;
+            result = 0xFF;
         } else if (addr == 0xFF04) {
             // Timer DIV
             result = timer.div;

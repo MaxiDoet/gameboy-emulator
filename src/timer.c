@@ -1,6 +1,6 @@
 #include "emulator.h"
 
-timer_t timer;
+timer_regs_t timer;
 
 #ifdef TIMER_DEBUG
 #define DEBUG_TIMER(...) printf("[timer] "); printf(__VA_ARGS__)

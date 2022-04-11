@@ -35,6 +35,7 @@ typedef struct mmu_t {
     uint8_t hram[0x007F];
 
     serial_control_t serial_control;
+    char serial_data;
     bool boot_rom_mapped;
 } mmu_t;
 

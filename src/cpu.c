@@ -981,7 +981,7 @@ void instruction_add_a_a()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += cpu.regs.a;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -993,7 +993,7 @@ void instruction_add_a_b()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += cpu.regs.b;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1005,7 +1005,7 @@ void instruction_add_a_c()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += cpu.regs.c;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1017,7 +1017,7 @@ void instruction_add_a_d()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += cpu.regs.d;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1027,9 +1027,9 @@ void instruction_add_a_d()
 void instruction_add_a_e()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.e;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1039,9 +1039,9 @@ void instruction_add_a_e()
 void instruction_add_a_h()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.h;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1051,9 +1051,9 @@ void instruction_add_a_h()
 void instruction_add_a_l()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.l;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1065,7 +1065,7 @@ void instruction_add_a_n()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += mmu_rb(cpu.regs.pc);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1078,7 +1078,7 @@ void instruction_add_a_hlp()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a += mmu_rb(cpu.regs.hl);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1091,7 +1091,7 @@ void instruction_adc_a_a()
     cpu.regs.a += cpu.regs.a;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1104,7 +1104,7 @@ void instruction_adc_a_b()
     cpu.regs.a += cpu.regs.b;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1117,7 +1117,7 @@ void instruction_adc_a_c()
     cpu.regs.a += cpu.regs.c;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1130,7 +1130,7 @@ void instruction_adc_a_d()
     cpu.regs.a += cpu.regs.d;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1140,10 +1140,10 @@ void instruction_adc_a_d()
 void instruction_adc_a_e()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.e;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1153,10 +1153,10 @@ void instruction_adc_a_e()
 void instruction_adc_a_h()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.h;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1166,10 +1166,10 @@ void instruction_adc_a_h()
 void instruction_adc_a_l()
 {
     uint8_t tmp = cpu.regs.a;
-    cpu.regs.a += cpu.regs.a;
+    cpu.regs.a += cpu.regs.l;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1182,7 +1182,7 @@ void instruction_adc_a_n()
     cpu.regs.a += mmu_rb(cpu.regs.pc);
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1196,7 +1196,7 @@ void instruction_adc_a_hlp()
     cpu.regs.a += mmu_rb(cpu.regs.hl);
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a++;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1208,7 +1208,7 @@ void instruction_sub_a_a()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.a;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1220,7 +1220,7 @@ void instruction_sub_a_b()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.b;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1232,7 +1232,7 @@ void instruction_sub_a_c()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.c;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1244,7 +1244,7 @@ void instruction_sub_a_d()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.d;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1256,7 +1256,7 @@ void instruction_sub_a_e()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.e;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1268,7 +1268,7 @@ void instruction_sub_a_h()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.h;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1280,7 +1280,7 @@ void instruction_sub_a_l()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= cpu.regs.l;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1292,7 +1292,7 @@ void instruction_sub_a_n()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= mmu_rb(cpu.regs.pc);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1305,7 +1305,7 @@ void instruction_sub_a_hlp()
     uint8_t tmp = cpu.regs.a;
     cpu.regs.a -= mmu_rb(cpu.regs.hl);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1318,7 +1318,7 @@ void instruction_sbc_a_a()
     cpu.regs.a -= cpu.regs.a;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1331,7 +1331,7 @@ void instruction_sbc_a_b()
     cpu.regs.a -= cpu.regs.b;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1344,7 +1344,7 @@ void instruction_sbc_a_c()
     cpu.regs.a -= cpu.regs.c;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1357,7 +1357,7 @@ void instruction_sbc_a_d()
     cpu.regs.a -= cpu.regs.d;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1370,7 +1370,7 @@ void instruction_sbc_a_e()
     cpu.regs.a -= cpu.regs.e;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1383,7 +1383,7 @@ void instruction_sbc_a_h()
     cpu.regs.a -= cpu.regs.h;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1396,7 +1396,7 @@ void instruction_sbc_a_l()
     cpu.regs.a -= cpu.regs.l;
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1409,7 +1409,7 @@ void instruction_sbc_a_n()
     cpu.regs.a -= mmu_rb(cpu.regs.pc);
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1423,7 +1423,7 @@ void instruction_sbc_a_hlp()
     cpu.regs.a -= mmu_rb(cpu.regs.hl);
 
     if (CHECK_FLAG(FLAG_CARRY)) cpu.regs.a--;
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a > tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
@@ -1534,7 +1534,7 @@ void instruction_xor_a()
 {
     cpu.regs.a ^= cpu.regs.a;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1545,7 +1545,7 @@ void instruction_xor_b()
 {
     cpu.regs.a ^= cpu.regs.b;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1556,7 +1556,7 @@ void instruction_xor_c()
 {
     cpu.regs.a ^= cpu.regs.c;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1567,7 +1567,7 @@ void instruction_xor_d()
 {
     cpu.regs.a ^= cpu.regs.d;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1578,7 +1578,7 @@ void instruction_xor_e()
 {
     cpu.regs.a ^= cpu.regs.e;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1589,7 +1589,7 @@ void instruction_xor_h()
 {
     cpu.regs.a ^= cpu.regs.h;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1600,7 +1600,7 @@ void instruction_xor_l()
 {
     cpu.regs.a ^= cpu.regs.l;
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1611,7 +1611,7 @@ void instruction_xor_n()
 {
     cpu.regs.a ^= mmu_rb(cpu.regs.pc);
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1623,7 +1623,7 @@ void instruction_xor_hlp()
 {
     cpu.regs.a ^= mmu_rb(cpu.regs.hl);
     
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1634,7 +1634,7 @@ void instruction_or_a()
 {
     cpu.regs.a |= cpu.regs.a;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1645,7 +1645,7 @@ void instruction_or_b()
 {
     cpu.regs.a |= cpu.regs.b;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1656,7 +1656,7 @@ void instruction_or_c()
 {
     cpu.regs.a |= cpu.regs.c;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1667,7 +1667,7 @@ void instruction_or_d()
 {
     cpu.regs.a |= cpu.regs.d;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1678,7 +1678,7 @@ void instruction_or_e()
 {
     cpu.regs.a |= cpu.regs.e;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1689,7 +1689,7 @@ void instruction_or_h()
 {
     cpu.regs.a |= cpu.regs.h;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1700,7 +1700,7 @@ void instruction_or_l()
 {
     cpu.regs.a |= cpu.regs.l;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1711,7 +1711,7 @@ void instruction_or_n()
 {
     cpu.regs.a |= mmu_rb(cpu.regs.pc);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1723,7 +1723,7 @@ void instruction_or_hlp()
 {
     cpu.regs.a |= mmu_rb(cpu.regs.hl);
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     CLEAR_FLAG(FLAG_CARRY);
 
@@ -1820,7 +1820,7 @@ void instruction_inc_a()
 {
     cpu.regs.a++;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1830,7 +1830,7 @@ void instruction_inc_b()
 {
     cpu.regs.b++;
 
-    if (!cpu.regs.b) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.b == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1840,7 +1840,7 @@ void instruction_inc_c()
 {
     cpu.regs.c++;
 
-    if (!cpu.regs.c) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.c == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1850,7 +1850,7 @@ void instruction_inc_d()
 {
     cpu.regs.d++;
 
-    if (!cpu.regs.d) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.d == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1860,7 +1860,7 @@ void instruction_inc_e()
 {
     cpu.regs.e++;
 
-    if (!cpu.regs.e) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.e == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1870,7 +1870,7 @@ void instruction_inc_h()
 {
     cpu.regs.h++;
 
-    if (!cpu.regs.h) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.h == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1880,7 +1880,7 @@ void instruction_inc_l()
 {
     cpu.regs.l++;
 
-    if (!cpu.regs.l) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.l == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1890,7 +1890,7 @@ void instruction_inc_hlp()
 {
     mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) + 1);
 
-    if (!mmu_rb(cpu.regs.hl)) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (mmu_rb(cpu.regs.hl) == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 12;
@@ -1900,7 +1900,7 @@ void instruction_dec_a()
 {
     cpu.regs.a--;
 
-    if (!cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1910,7 +1910,7 @@ void instruction_dec_b()
 {
     cpu.regs.b--;
 
-    if (!cpu.regs.b) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.b == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1920,7 +1920,7 @@ void instruction_dec_c()
 {
     cpu.regs.c--;
 
-    if (!cpu.regs.c) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.c == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1930,7 +1930,7 @@ void instruction_dec_d()
 {
     cpu.regs.d--;
 
-    if (!cpu.regs.d) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.d == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1940,7 +1940,7 @@ void instruction_dec_e()
 {
     cpu.regs.e--;
 
-    if (!cpu.regs.e) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.e == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1950,7 +1950,7 @@ void instruction_dec_h()
 {
     cpu.regs.h--;
 
-    if (!cpu.regs.h) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.h == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1960,7 +1960,7 @@ void instruction_dec_l()
 {
     cpu.regs.l--;
 
-    if (!cpu.regs.l) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (cpu.regs.l == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 4;
@@ -1970,7 +1970,7 @@ void instruction_dec_hlp()
 {
     mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) - 1);
 
-    if (!mmu_rb(cpu.regs.hl)) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    if (mmu_rb(cpu.regs.hl) == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     SET_FLAG(FLAG_SUBTRACTION);
 
     cpu.cycles += 12;
@@ -1978,7 +1978,7 @@ void instruction_dec_hlp()
 
 void instruction_cpl()
 {
-    cpu.regs.a ^= 0xFF;
+    cpu.regs.a = ~cpu.regs.a;
 
     SET_FLAG(FLAG_SUBTRACTION);
 
@@ -2147,12 +2147,20 @@ void instruction_cb_swap_a()
 {
     cpu.regs.a = ((cpu.regs.a >> 4) & 0xF) | ((cpu.regs.a << 4) & 0xF0);
 
+    if (cpu.regs.a == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
+
     cpu.cycles += 8;
 }
 
 void instruction_cb_swap_b()
 {
     cpu.regs.b = ((cpu.regs.b >> 4) & 0xF) | ((cpu.regs.b << 4) & 0xF0);
+
+    if (cpu.regs.b == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
 
     cpu.cycles += 8;
 }
@@ -2161,12 +2169,20 @@ void instruction_cb_swap_c()
 {
     cpu.regs.c = ((cpu.regs.c >> 4) & 0xF) | ((cpu.regs.c << 4) & 0xF0);
 
+    if (cpu.regs.c == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
+
     cpu.cycles += 8;
 }
 
 void instruction_cb_swap_d()
 {
     cpu.regs.d = ((cpu.regs.d >> 4) & 0xF) | ((cpu.regs.d << 4) & 0xF0);
+
+    if (cpu.regs.d == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
 
     cpu.cycles += 8;
 }
@@ -2175,12 +2191,20 @@ void instruction_cb_swap_e()
 {
     cpu.regs.e = ((cpu.regs.e >> 4) & 0xF) | ((cpu.regs.e << 4) & 0xF0);
 
+    if (cpu.regs.e == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
+
     cpu.cycles += 8;
 }
 
 void instruction_cb_swap_h()
 {
     cpu.regs.h = ((cpu.regs.h >> 4) & 0xF) | ((cpu.regs.h << 4) & 0xF0);
+
+    if (cpu.regs.h == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
 
     cpu.cycles += 8;
 }
@@ -2189,13 +2213,21 @@ void instruction_cb_swap_l()
 {
     cpu.regs.l = ((cpu.regs.l >> 4) & 0xF) | ((cpu.regs.l << 4) & 0xF0);
 
+    if (cpu.regs.l == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
+
     cpu.cycles += 8;
 }
 
 void instruction_cb_swap_hlp()
 {
-    uint16_t value = mmu_rb(cpu.regs.hl);
+    uint8_t value = mmu_rb(cpu.regs.hl);
     mmu_wb(cpu.regs.hl, ((value >> 4) & 0xF) | ((value << 4) & 0xF0));
+
+    if (mmu_rb(cpu.regs.hl) == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_CARRY);
 
     cpu.regs.pc += 1;
     cpu.cycles += 8;
@@ -3558,6 +3590,8 @@ void cpu_reset()
     cpu.ie = 0x00;
     cpu.ifr = 0x00;
     cpu.ime = false;
+    cpu.cycles = 0;
+    cpu.debug_enabled = false;
 }
 
 void cpu_enable_interrupts(uint8_t ie)
@@ -3673,8 +3707,8 @@ void cpu_step()
     }
 
     // Breakpoints
-    //if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x0100) cpu.debug_enabled = true;
-    if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x04BB) cpu.debug_enabled = true;
+    if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x0100) cpu.debug_enabled = true;
+    //if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x04BB) cpu.debug_enabled = true;
 
     uint8_t opcode = mmu_rb(cpu.regs.pc++);
 

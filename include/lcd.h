@@ -7,7 +7,7 @@
 
 #include <SDL2/SDL.h>
 
-#define LCD_DEBUG
+//#define LCD_DEBUG
 
 typedef union {
     struct {

@@ -3,12 +3,12 @@
 
 #include <stdint.h>
 
-//#define CPU_DEBUG
-//#define CPU_DEBUG_INSTRUCTIONS
-//#define CPU_DEBUG_INTERRUPTS
+#define CPU_DEBUG
+#define CPU_DEBUG_INSTRUCTIONS
+#define CPU_DEBUG_INTERRUPTS
 
 #ifdef CPU_DEBUG
-#define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__)
+#define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__); fflush(stdout);
 #endif
 
 typedef struct cpu_regs_t {

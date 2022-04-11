@@ -12,7 +12,7 @@
 #define TIMER_TAC_CLOCK_64      2
 #define TIMER_TAC_CLOCK_256     3
 
-typedef struct timer_t {
+typedef struct timer_regs_t {
     /* Registers */
     uint8_t div;
     uint8_t tima;
@@ -21,9 +21,9 @@ typedef struct timer_t {
 
     int32_t div_counter;
     int32_t tima_counter;
-} timer_t;
+} timer_regs_t;
 
-extern timer_t timer;
+extern timer_regs_t timer;
 
 void timer_tick(uint32_t cycles);
 

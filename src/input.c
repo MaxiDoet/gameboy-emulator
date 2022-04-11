@@ -13,7 +13,7 @@ void input_init()
 
 uint8_t input_read()
 {
-    uint8_t result = 0xFF;
+    uint8_t result = 0x3F;
 
     if (input.direction) {
         if (input.state.right) result &= ~(1 << 0);
@@ -33,7 +33,22 @@ uint8_t input_read()
     if (input.action) result &= ~(1 << 5);
 
     #ifdef INPUT_DEBUG
-    DEBUG_INPUT("read: %x\n", result);
+    DEBUG_INPUT("Read: %x\n", result);
+
+    if (input.direction) {
+        DEBUG_INPUT(" Right:  %s\n", input.state.right ? "Pressed" : "Released");
+        DEBUG_INPUT(" Left:   %s\n", input.state.left ? "Pressed" : "Released");
+        DEBUG_INPUT(" Up:     %s\n", input.state.up ? "Pressed" : "Released");
+        DEBUG_INPUT(" Down:   %s\n", input.state.down ? "Pressed" : "Released");
+    }
+
+    if (input.action) {
+        DEBUG_INPUT(" A:      %s\n", input.state.a ? "Pressed" : "Released");
+        DEBUG_INPUT(" B:      %s\n", input.state.b ? "Pressed" : "Released");
+        DEBUG_INPUT(" Select: %s\n", input.state.select ? "Pressed" : "Released");
+        DEBUG_INPUT(" Start:  %s\n", input.state.start ? "Pressed" : "Released");
+    }
+
     #endif
 
     return result;
@@ -56,6 +71,10 @@ void input_write(uint8_t value)
 void input_handle(SDL_KeyboardEvent *event)
 {
     bool release = (event->type == SDL_KEYUP);
+
+    if (event->repeat) {
+        return;
+    }
 
     #ifdef INPUT_DEBUG
     DEBUG_INPUT("Event Key: %s State: %s\n", SDL_GetKeyName(event->keysym.sym), release ? "Release" : "Press");

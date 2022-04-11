@@ -13,13 +13,16 @@ const uint8_t default_palette[4][3] = {
     {0x00, 0x00, 0x00}  // Black
 };
 
-/*
+
+/* Original Gameboy palette
+
 uint8_t default_palette[4][3] = {
     {0x9B, 0xBC, 0x0F}, // White
     {0x8B, 0xAC, 0x0F}, // Light Grey
     {0x30, 0x62, 0x30}, // Dark Grey
     {0x0F, 0x38, 0x0F}  // Black
 };
+
 */
 
 const char *color_names[4] = {
