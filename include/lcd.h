@@ -73,7 +73,8 @@ typedef struct lcd_regs_t {
 } lcd_regs_t;
 
 typedef struct lcd_t {
-    uint8_t pixels[LCD_WIDTH * LCD_HEIGHT][3];
+    uint8_t color_buffer[LCD_WIDTH * LCD_HEIGHT];
+    uint8_t framebuffer[LCD_WIDTH * LCD_HEIGHT * 3][3];
     lcd_regs_t regs;
     uint32_t cycles;
     uint8_t palette[4];
@@ -88,8 +89,12 @@ typedef struct lcd_t {
 #define LCD_CONTROL_OBJ_ENABLE (1 << 1)
 #define LCD_CONTROL_LCD_ENABLE (1 << 7)
 
+#define TILE_WIDTH 8
+#define TILE_HEIGHT 8
+
 #define TILES_PER_SCANLINE 32
 #define BYTES_PER_TILE 16
+#define SPRITES_PER_LINE_LIMIT 10
 
 void lcd_init();
 void lcd_step(uint32_t cycles);

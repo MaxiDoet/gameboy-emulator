@@ -34,7 +34,7 @@ void mmu_wb(uint16_t addr, uint8_t data)
             mbc_wb(addr, data);
         }
 
-        #if defined MMU_DEBUG && defined MMU_DEBUG_ROM
+        #if defined MMU_DEBUG
         DEBUG_MMU("[mmu] Illegal write operation inside ROM area (%x:%x)\n", addr, data);
         #endif
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
@@ -94,10 +94,6 @@ void mmu_wb(uint16_t addr, uint8_t data)
             #endif
         }
 
-        #if defined MMU_DEBUG && defined MMU_DEBUG_IO
-        DEBUG_MMU("Write to IO (%04X) <- %x\n", addr, data);
-        #endif
-
     } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
         // HRAM
         mmu.hram[addr - 0xFF80] = data;
@@ -108,6 +104,10 @@ void mmu_wb(uint16_t addr, uint8_t data)
         DEBUG_MMU("[mmu] Illegal write operation (%x:%x)\n", addr, data);
         #endif
     }
+
+    #if defined MMU_DEBUG && defined MMU_DEBUG_WRITE
+    DEBUG_MMU("Write to %04X <- %x\n", addr, data);
+    #endif
 }
 
 void mmu_ww(uint16_t addr, uint16_t data)
@@ -132,10 +132,6 @@ uint8_t mmu_rb(uint16_t addr)
                 result = mbc_rb(addr);
             }
         }
-
-        #if defined MMU_DEBUG && defined MMU_DEBUG_ROM
-        DEBUG_MMU("Read from ROM (%04X) -> %x\n", addr, result);
-        #endif
     } else if (addr >= 0x8000 && addr <= 0x9FFF) {
         // VRAM
         result = mmu.vram[addr - 0x8000];
@@ -157,7 +153,7 @@ uint8_t mmu_rb(uint16_t addr)
         } else if (addr == 0xFF01) {
             result = mmu.serial_data;
         } else if (addr == 0xFF02) {
-            result = 0xFF;
+            result = mmu.serial_control.value;
         } else if (addr == 0xFF04) {
             // Timer DIV
             result = timer.div;
@@ -176,20 +172,20 @@ uint8_t mmu_rb(uint16_t addr)
         } else if (addr >= 0xFF40 && addr <= 0xFF4B) {
             result = lcd_rb(addr & 0xFF);
         }
-
-        #if defined MMU_DEBUG && defined MMU_DEBUG_IO
-        DEBUG_MMU("Read from IO (%04X) -> %x\n", addr, result);
-        #endif
     } else if (addr >= 0xFF80 && addr <= 0xFFFE) {
         result = mmu.hram[addr - 0xFF80];
     } else if (addr == 0xFFFF) {
         result = cpu.ie;
     } else {
         #ifdef MMU_DEBUG
-        DEBUG_MMU("[mmu] Illegal read operation (%x)\n", addr);
+        DEBUG_MMU("Illegal read operation (%x)\n", addr);
         #endif
         result = 0;
     }
+
+    #if defined MMU_DEBUG && defined MMU_DEBUG_READ
+    DEBUG_MMU("Read from %04X -> %x\n", addr, result);
+    #endif
 
     return result;
 }

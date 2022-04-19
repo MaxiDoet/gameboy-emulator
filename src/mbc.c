@@ -2,7 +2,12 @@
 
 mbc_t mbc;
 
-/* Todo: Define own MBC types */
+void mbc_init()
+{
+    if (mbc.type == MBC_TYPE_MBC1) {
+        mbc.rom_bank_number = 0x01;
+    }
+}
 
 uint8_t mbc_ram_rb(uint16_t addr)
 {
@@ -37,7 +42,7 @@ uint8_t mbc_rb(uint16_t addr)
         }
     } else if (addr >= 4000 && addr <= 0x7FFF) {
         // Switchable rom bank
-        result = mbc.rom[0x4000 * mbc.rom_bank_number];
+        result = mbc.rom[0x4000 * mbc.rom_bank_number + (addr - 0x4000)];        
     } else if (addr >= 0xA000 && addr <= 0xBFFF) {
         // Switchable ram bank
         result = mbc_ram_rb(addr);

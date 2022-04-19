@@ -13,7 +13,6 @@ const uint8_t default_palette[4][3] = {
     {0x00, 0x00, 0x00}  // Black
 };
 
-
 /* Original Gameboy palette
 
 uint8_t default_palette[4][3] = {
@@ -81,14 +80,8 @@ void lcd_wb(uint8_t addr, uint8_t data)
 
             break;
 
-        // LY
+        // LY (Read only)
         case 0x44:
-            lcd.regs.ly = data;
-
-            #ifdef LCD_DEBUG
-            DEBUG_LCD("-> LY: %x\n", data);
-            #endif
-
             break;
 
         // LY Compare
@@ -181,26 +174,24 @@ uint8_t lcd_rb(uint8_t addr)
             value = lcd.regs.lyc;
             break;  
 
-        // BGP
+        // BGP (Write only)
         case 0x47:
-            value = lcd.regs.bgp;
+            value = 0;
             break;
     }
 
     return value;
 }
 
-void draw_pixel(uint8_t x, uint8_t y, uint8_t color_index)
+static inline void set_pixel(uint8_t x, uint8_t y, uint8_t color_index)
 {
-    lcd.pixels[y * LCD_WIDTH + x][0] = default_palette[lcd.palette[color_index]][0];
-    lcd.pixels[y * LCD_WIDTH + x][1] = default_palette[lcd.palette[color_index]][1];
-    lcd.pixels[y * LCD_WIDTH + x][2] = default_palette[lcd.palette[color_index]][2];
+    lcd.color_buffer[y * LCD_WIDTH + x] = lcd.palette[color_index];
 }
 
 void draw_bg_line()
 {
     if (!lcd.regs.control.fields.bg_window_enable) {
-        memset(lcd.pixels, 0xFF, LCD_WIDTH * LCD_HEIGHT * 3);
+        memset(lcd.color_buffer, 0, LCD_WIDTH * LCD_HEIGHT);
         return;
     }
 
@@ -232,7 +223,7 @@ void draw_bg_line()
         uint8_t bit_l = (mmu_rb(bg_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
 
         uint8_t color_index = (bit_h << 1) | bit_l;
-        draw_pixel(x, lcd.regs.ly, color_index);
+        set_pixel(x, lcd.regs.ly, color_index);
     }
 }
 
@@ -244,6 +235,9 @@ void draw_window_line()
 
     uint16_t window_tile_data_area = lcd.regs.control.fields.bg_tile_data_area ? 0x8000 : 0x8800;
     uint16_t window_tile_map_area = lcd.regs.control.fields.window_tile_map_area ? 0x9C00 : 0x9800;
+
+    if (lcd.regs.wx > 166) return;
+    if (lcd.regs.wy > 143) return;
 
     uint8_t scrolled_line = lcd.regs.ly - lcd.regs.wy; 
     uint16_t scrolled_line_map_offset = (scrolled_line / 8) * TILES_PER_SCANLINE;
@@ -270,41 +264,7 @@ void draw_window_line()
         uint8_t bit_l = (mmu_rb(window_tile_data_area + tile_offset) >> (7 - tile_offset_x)) & 1;
 
         uint8_t color_index = (bit_h << 1) | bit_l;
-        draw_pixel(x, lcd.regs.ly, color_index);
-    }
-}
-
-void draw_sprite(uint8_t num)
-{
-    uint16_t oam_offset = num * 4;
-    lcd_oam_t* oam = (lcd_oam_t *) &mmu.oam[oam_offset];
-    
-    uint8_t tile_index = oam->tile_index;
-    uint16_t tile_offset = tile_index * BYTES_PER_TILE;
-    uint8_t tile_x = oam->x - 8;
-    uint8_t tile_y = oam->y - 16;
-    bool flip_x = oam->flags.fields.x_flip;
-    bool flip_y = oam->flags.fields.y_flip;
-
-    if (tile_x == 0 || tile_x >= 160) return;
-    if (tile_y == 0 || tile_y >= 168) return;
-
-    for (int y=0; y < 8; y++) {
-        uint8_t tile_offset_y = y * 2;
-        uint8_t screen_y = flip_y ? (tile_y + 8 - y) : (tile_y + y);
-
-        for (int x=0; x < 8; x++) {
-            uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
-            uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
-
-            uint8_t screen_x = flip_x ? (tile_x + 8 - x) : (tile_x + x);
-
-            uint8_t color_index = (bit_h << 1) | bit_l;
-
-            if (color_index != 0) {
-                draw_pixel(screen_x, screen_y, color_index);
-            }
-        }
+        set_pixel(x, lcd.regs.ly, color_index);
     }
 }
 
@@ -314,21 +274,56 @@ void draw_sprites()
         return;
     }
 
+    uint8_t sprite_size = lcd.regs.control.fields.obj_size ? 2 : 1;
+
     for (int i=0; i < 40; i++) {
-        draw_sprite(i);
+        uint16_t oam_offset = i * 4;
+        lcd_oam_t* oam_entry = (lcd_oam_t *) &mmu.oam[oam_offset];
+    
+        uint8_t tile_index = lcd.regs.control.fields.obj_size ? oam_entry->tile_index & 0xFE : oam_entry->tile_index;
+        uint16_t tile_offset = tile_index * BYTES_PER_TILE * sprite_size;
+        uint8_t tile_x = oam_entry->x - 8;
+        uint8_t tile_y = oam_entry->y - 16;
+        bool flip_x = oam_entry->flags.fields.x_flip;
+        bool flip_y = oam_entry->flags.fields.y_flip;
+
+        if (tile_x == 0 || tile_x >= 160) continue;
+        if (tile_y == 0 || tile_y >= 168) continue;
+
+        for (int y=0; y < TILE_HEIGHT * sprite_size; y++) {
+            uint8_t tile_offset_y = y * 2;
+            uint8_t screen_y = flip_y ? (tile_y + 8 - y) : (tile_y + y);
+
+            for (int x=0; x < 8; x++) {
+                uint8_t bit_h = (mmu_rb(0x8000 + tile_offset + tile_offset_y + 1) >> (7 - x)) & 1;
+                uint8_t bit_l = (mmu_rb(0x8000 + tile_offset + tile_offset_y) >> (7 - x)) & 1;
+
+                uint8_t screen_x = flip_x ? (tile_x + 8 - x) : (tile_x + x);
+
+                uint8_t color_index = (bit_h << 1) | bit_l;
+
+                if (color_index == 0) {
+                    continue;
+                }
+
+                if (oam_entry->flags.fields.bg_window_over_obj && (lcd.color_buffer[screen_y * LCD_WIDTH + screen_x] != 0)) {
+                    continue;
+                }
+
+                set_pixel(screen_x, screen_y, color_index);
+            }
+        }
     }
 }
 
-void lyc_check()
+void draw_framebuffer()
 {
-    if (lcd.regs.ly == lcd.regs.lyc) {
-        lcd.regs.status.fields.lyc = 1;
-
-        if (lcd.regs.status.fields.lyc_stat) {
-            cpu_request_interrupt(CPU_IF_LCD_STAT);
+    for (int y=0; y < LCD_HEIGHT; y++) {
+        for (int x=0; x < LCD_WIDTH; x++) {
+            lcd.framebuffer[y * LCD_WIDTH + x][0] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][0];
+            lcd.framebuffer[y * LCD_WIDTH + x][1] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][1];
+            lcd.framebuffer[y * LCD_WIDTH + x][2] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][2];
         }
-    } else {
-        lcd.regs.status.fields.lyc = 0;
     }
 }
 
@@ -339,30 +334,38 @@ void lcd_step(uint32_t cycles)
 
         if (lcd.regs.status.fields.mode == LCD_MODE_HBLANK) {
             if (lcd.cycles >= 204) {
-                lcd.cycles = 0;
+                lcd.cycles -= 204;
+
+                draw_bg_line();
+                draw_window_line();
+
                 lcd.regs.ly++;
 
-                if (lcd.regs.ly == 144) {
+                if (lcd.regs.ly == 143) {
                     lcd.regs.status.fields.mode = LCD_MODE_VBLANK;                    
                     cpu_request_interrupt(CPU_IF_VBLANK);
                } else {
+                    /*
                     if (lcd.regs.status.fields.mode_2_stat) {
                         cpu_request_interrupt(CPU_IF_LCD_STAT);
                     }
+                    */
 
                     lcd.regs.status.fields.mode = LCD_MODE_OAM;
-                }   
+                }
             }
         
         } else if (lcd.regs.status.fields.mode == LCD_MODE_VBLANK) {
             if (lcd.cycles >= 456) {
-                lcd.cycles = 0;
+                lcd.cycles -= 456;
+
                 lcd.regs.ly++;
 
-                if (lcd.regs.ly == 154) {
+                if (lcd.regs.ly == 153) {
                     draw_sprites();
-                    lyc_check();
+                    draw_framebuffer();
                     emulator_render();
+                    
                     lcd.regs.ly = 0;
                     lcd.regs.status.fields.mode = LCD_MODE_OAM;
                 }
@@ -370,21 +373,31 @@ void lcd_step(uint32_t cycles)
 
         } else if (lcd.regs.status.fields.mode == LCD_MODE_OAM) {
             if (lcd.cycles >= 80) {
-                lcd.cycles = 0;
+                lcd.cycles -= 80;
 
                 lcd.regs.status.fields.mode = LCD_MODE_VRAM;
             }
 
         } else if (lcd.regs.status.fields.mode == LCD_MODE_VRAM) {
             if (lcd.cycles >= 172) {
-                lcd.cycles = 0;
+                lcd.cycles -= 172;
+
+                if (lcd.regs.status.fields.mode_0_stat) {
+                    cpu_request_interrupt(CPU_IF_LCD_STAT);
+                }
+
+                if (lcd.regs.ly == lcd.regs.lyc) {
+                    lcd.regs.status.fields.lyc = 1;
+
+                    if (lcd.regs.status.fields.lyc_stat) {
+                        cpu_request_interrupt(CPU_IF_LCD_STAT);
+                    }
+                } else {
+                    lcd.regs.status.fields.lyc = 0;
+                }
 
                 lcd.regs.status.fields.mode = LCD_MODE_HBLANK;
-
-                draw_bg_line();
-                draw_window_line();
             }
         }
-
     }
 }

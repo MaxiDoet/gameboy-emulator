@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#define CPU_DEBUG
-#define CPU_DEBUG_INSTRUCTIONS
-#define CPU_DEBUG_INTERRUPTS
+//#define CPU_DEBUG
+//#define CPU_DEBUG_INSTRUCTIONS
+//#define CPU_DEBUG_INTERRUPTS
 
 #ifdef CPU_DEBUG
 #define DEBUG_CPU(...) printf("[cpu] "); printf(__VA_ARGS__); fflush(stdout);
@@ -54,7 +54,7 @@ typedef struct cpu_regs_t {
 
 typedef struct cpu_t {
     cpu_regs_t regs;
-    int32_t cycles;
+    uint32_t cycles;
     uint8_t ie;
     uint8_t ifr;
 

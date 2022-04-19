@@ -32,6 +32,7 @@ typedef struct mbc_t {
 
 extern mbc_t mbc;
 
+void mbc_init();
 uint8_t mbc_rb(uint16_t addr);
 void mbc_wb(uint16_t addr, uint8_t data);
 

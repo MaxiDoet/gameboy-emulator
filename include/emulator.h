@@ -24,6 +24,7 @@ typedef struct emulator_t {
     rom_info_t rom_info;
     SDL_Window *window;
     SDL_Renderer *renderer;
+    bool running;
 } emulator_t;
 
 #define CYCLES_PER_SECOND 4194304

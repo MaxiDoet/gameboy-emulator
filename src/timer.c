@@ -6,31 +6,14 @@ timer_regs_t timer;
 #define DEBUG_TIMER(...) printf("[timer] "); printf(__VA_ARGS__)
 #endif
 
-void timer_tima_increment()
-{
-    timer.tima++;
-
-    #ifdef TIMER_DEBUG
-    DEBUG_TIMER("TIMA increment\n");
-    #endif
-
-    if (timer.tima == 0) {
-        timer.tima = timer.tma;
-        cpu_request_interrupt(CPU_IF_TIMER);
-
-        #ifdef TIMER_DEBUG
-        DEBUG_TIMER("TIMA overflow\n");
-        #endif
-    }
-}
-
 void timer_tick(uint32_t cycles)
 {
-    timer.div_counter += cycles;
-    timer.tima_counter += cycles;
-
     // DIV
-    if (timer.div_counter >= TIMER_CYCLES_PER_DIV) {
+    timer.div_counter += cycles;
+    
+    //printf("cycles: %d div_counter: %d\n", cycles, timer.div_counter);
+
+    if (timer.div_counter >= 256) {
         timer.div_counter = 0;
         timer.div++;
 
@@ -41,8 +24,11 @@ void timer_tick(uint32_t cycles)
 
     // TIMA
     if (timer.tac & TIMER_TAC_ENABLE) {
+        timer.tima_counter += cycles;
+
         uint8_t clock_select = timer.tac & 3;
-        int divider;
+        
+        uint16_t divider = 0;
 
         switch(clock_select) {
             case TIMER_TAC_CLOCK_1024:
@@ -62,9 +48,18 @@ void timer_tick(uint32_t cycles)
                 break;
         }
 
-        if (timer.tima_counter >= (CYCLES_PER_SECOND / divider)) {
-            timer.tima_counter = 0;
-            timer_tima_increment();
+        if (timer.tima_counter >= divider) {
+            if (timer.tima == 0xFF) {
+                timer.tima = timer.tma;
+
+                cpu_request_interrupt(CPU_IF_TIMER);
+
+                #ifdef TIMER_DEBUG
+                DEBUG_TIMER("TIMA overflow\n");
+                #endif
+            } else {
+                timer.tima += 1;
+            }
         }
     }
 }

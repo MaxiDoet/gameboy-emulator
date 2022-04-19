@@ -19,8 +19,8 @@ typedef struct timer_regs_t {
     uint8_t tma;
     uint8_t tac;
 
-    int32_t div_counter;
-    int32_t tima_counter;
+    uint32_t div_counter;
+    uint32_t tima_counter;
 } timer_regs_t;
 
 extern timer_regs_t timer;

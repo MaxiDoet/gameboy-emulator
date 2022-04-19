@@ -14,6 +14,8 @@ const char* cartridge_type_names[0xFF] = {
 
 void emulator_init()
 {
+    emu.running = true;
+
     cpu_init();
     mmu_init();
     lcd_init();
@@ -119,6 +121,8 @@ int emulator_load(const char *path)
     mbc.ram_banks = emu.rom_info.ram_banks;
     mbc.ram = (uint8_t *) malloc(0x2000 * mbc.ram_banks);
 
+    mbc_init();
+
     return 0;
 }
 
@@ -132,17 +136,38 @@ void emulator_print_rom_info()
     printf("  - RAM banks: %d\n", emu.rom_info.ram_banks);
 }
 
+void emulator_handle_events()
+{
+    SDL_Event event;
+
+    while (SDL_PollEvent(&event)) {
+        switch(event.type) {
+            case SDL_QUIT:
+                emu.running = false;
+                break;
+            case SDL_KEYDOWN:
+            case SDL_KEYUP:
+                input_handle(&event.key);
+                break;
+            default:
+                break;
+        }
+    }
+}
+
 void emulator_render()
 {
+    emulator_handle_events();
+
     for (int window_y=0; window_y < LCD_HEIGHT * LCD_SCALE; window_y++) {
         for (int window_x=0; window_x < LCD_WIDTH * LCD_SCALE; window_x++) {
             int screen_x = window_x / LCD_SCALE;
             int screen_y = window_y / LCD_SCALE;
 
             SDL_SetRenderDrawColor(emu.renderer, 
-                lcd.pixels[screen_y * LCD_WIDTH + screen_x][0],
-                lcd.pixels[screen_y * LCD_WIDTH + screen_x][1],
-                lcd.pixels[screen_y * LCD_WIDTH + screen_x][2],
+                lcd.framebuffer[screen_y * LCD_WIDTH + screen_x][0],
+                lcd.framebuffer[screen_y * LCD_WIDTH + screen_x][1],
+                lcd.framebuffer[screen_y * LCD_WIDTH + screen_x][2],
                 0xFF
             );
 
@@ -155,25 +180,13 @@ void emulator_render()
 
 void emulator_run()
 {
-    bool running = true;
-    SDL_Event event;
     uint32_t last_cycles = 0;
-    while (running) {
-        while (SDL_PollEvent(&event)) {
-            switch(event.type) {
-                case SDL_QUIT:
-                    running = false;
-                    break;
-                case SDL_KEYDOWN:
-                case SDL_KEYUP:
-                    input_handle(&event.key);
-                    break;
-            }
-        }
-
+    while (emu.running) {
         cpu_step();
-        lcd_step(cpu.cycles - last_cycles);
         timer_tick(cpu.cycles - last_cycles);
+        cpu_serve_interrupts();
+
+        lcd_step(cpu.cycles - last_cycles);
 
         last_cycles = cpu.cycles;
     }

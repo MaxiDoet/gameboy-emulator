@@ -89,11 +89,11 @@ void input_handle(SDL_KeyboardEvent *event)
             input.state.b = !release;
             break;
 
-        case SDL_SCANCODE_X:
+        case SDL_SCANCODE_LSHIFT:
             input.state.select = !release;
             break;
 
-        case SDL_SCANCODE_Y:
+        case SDL_SCANCODE_RETURN:
             input.state.start = !release;
             break;
 
@@ -117,5 +117,5 @@ void input_handle(SDL_KeyboardEvent *event)
             break;            
     }
 
-    cpu_request_interrupt(CPU_IF_JOYPAD);
+    //cpu_request_interrupt(CPU_IF_JOYPAD);
 }
