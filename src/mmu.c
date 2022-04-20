@@ -30,7 +30,7 @@ void mmu_wb(uint16_t addr, uint8_t data)
 {
     if (addr <= 0x7FFF) {
         // ROM
-        if (emu.rom_info.cartridge_type != ROM_CARTRIDGE_TYPE_ROMONLY) {
+        if (emulator.rom_info.cartridge_type != ROM_CARTRIDGE_TYPE_ROMONLY) {
             mbc_wb(addr, data);
         }
 
@@ -63,11 +63,12 @@ void mmu_wb(uint16_t addr, uint8_t data)
             mmu.serial_control.value = data;  
 
             if (mmu.serial_control.fields.start_flag) {
-                #ifdef MMU_DEBUG
-                DEBUG_MMU("Serial Transfer -> %c\n", mmu.serial_data);
-                #endif
-
+                mmu.serial_control.fields.start_flag = 0;
                 //cpu_request_interrupt(CPU_IF_SERIAL);
+
+                #ifdef MMU_DEBUG
+                DEBUG_MMU("Serial Transfer -> %c\n", mmu.serial_out);
+                #endif
             }
         } else if (addr == 0xFF04) {
             // Timer DIV
@@ -84,6 +85,9 @@ void mmu_wb(uint16_t addr, uint8_t data)
         } else if (addr == 0xFF0F) {
             // Interrupt flags
             cpu.ifr = data;
+        } else if (addr >= 0xFF10 && addr <= 0xFF26) {
+            // Sound controller
+            sound_wb(addr & 0xFF, data);
         } else if (addr >= 0xFF40 && addr <= 0xFF4B) {
             lcd_wb(addr & 0xFF, data);
         } else if (addr == 0xFF50) {
@@ -126,8 +130,8 @@ uint8_t mmu_rb(uint16_t addr)
             // Boot ROM
             result = mmu.boot_rom[addr];
         } else {
-            if (emu.rom_info.cartridge_type == ROM_CARTRIDGE_TYPE_ROMONLY) {
-                result = emu.rom[addr];
+            if (emulator.rom_info.cartridge_type == ROM_CARTRIDGE_TYPE_ROMONLY) {
+                result = emulator.rom[addr];
             } else {
                 result = mbc_rb(addr);
             }
@@ -169,6 +173,9 @@ uint8_t mmu_rb(uint16_t addr)
         } else if (addr == 0xFF0F) {
             // Interrupt flag
             result = cpu.ifr;
+        } else if (addr >= 0xFF10 && addr <= 0xFF26) {
+            // Sound controller
+            result = sound_rb(addr & 0xFF);
         } else if (addr >= 0xFF40 && addr <= 0xFF4B) {
             result = lcd_rb(addr & 0xFF);
         }

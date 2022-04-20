@@ -6,24 +6,6 @@ lcd_t lcd;
 #define DEBUG_LCD(...) printf("[lcd] "); printf(__VA_ARGS__)
 #endif
 
-const uint8_t default_palette[4][3] = {
-    {0xFF, 0xFF, 0xFF}, // White
-    {0x96, 0x96, 0x96}, // Light Grey
-    {0x3B, 0x3B, 0x3B}, // Dark Grey
-    {0x00, 0x00, 0x00}  // Black
-};
-
-/* Original Gameboy palette
-
-uint8_t default_palette[4][3] = {
-    {0x9B, 0xBC, 0x0F}, // White
-    {0x8B, 0xAC, 0x0F}, // Light Grey
-    {0x30, 0x62, 0x30}, // Dark Grey
-    {0x0F, 0x38, 0x0F}  // Black
-};
-
-*/
-
 const char *color_names[4] = {
     "White",
     "Light Gray",
@@ -316,17 +298,6 @@ void draw_sprites()
     }
 }
 
-void draw_framebuffer()
-{
-    for (int y=0; y < LCD_HEIGHT; y++) {
-        for (int x=0; x < LCD_WIDTH; x++) {
-            lcd.framebuffer[y * LCD_WIDTH + x][0] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][0];
-            lcd.framebuffer[y * LCD_WIDTH + x][1] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][1];
-            lcd.framebuffer[y * LCD_WIDTH + x][2] = default_palette[lcd.color_buffer[y * LCD_WIDTH + x]][2];
-        }
-    }
-}
-
 void lcd_step(uint32_t cycles)
 {
     if (lcd.regs.control.fields.lcd_ppu_enable) {
@@ -345,11 +316,9 @@ void lcd_step(uint32_t cycles)
                     lcd.regs.status.fields.mode = LCD_MODE_VBLANK;                    
                     cpu_request_interrupt(CPU_IF_VBLANK);
                } else {
-                    /*
                     if (lcd.regs.status.fields.mode_2_stat) {
                         cpu_request_interrupt(CPU_IF_LCD_STAT);
                     }
-                    */
 
                     lcd.regs.status.fields.mode = LCD_MODE_OAM;
                 }
@@ -363,8 +332,7 @@ void lcd_step(uint32_t cycles)
 
                 if (lcd.regs.ly == 153) {
                     draw_sprites();
-                    draw_framebuffer();
-                    emulator_render();
+                    render();
                     
                     lcd.regs.ly = 0;
                     lcd.regs.status.fields.mode = LCD_MODE_OAM;

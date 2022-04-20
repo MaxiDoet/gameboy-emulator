@@ -36,6 +36,9 @@ typedef struct mmu_t {
 
     serial_control_t serial_control;
     char serial_data;
+    char serial_out;
+    int serial_cycles;
+
     bool boot_rom_mapped;
 } mmu_t;
 

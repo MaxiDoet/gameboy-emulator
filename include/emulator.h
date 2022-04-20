@@ -15,6 +15,7 @@
 #include "lcd.h"
 #include "input.h"
 #include "timer.h"
+#include "sound.h"
 #include "mbc.h"
 #include "debug.h"
 #include "boot.h"
@@ -24,18 +25,17 @@ typedef struct emulator_t {
     rom_info_t rom_info;
     SDL_Window *window;
     SDL_Renderer *renderer;
+    SDL_Texture *texture;
+
     bool running;
 } emulator_t;
 
 #define CYCLES_PER_SECOND 4194304
 #define CYCLES_PER_FRAME 69905
 
-void emulator_init();
-int emulator_load(const char *path);
-void emulator_print_rom_info();
-void emulator_render();
-void emulator_run();
+void handle_events();
+void render();
 
-extern emulator_t emu;
+extern emulator_t emulator;
 
 #endif

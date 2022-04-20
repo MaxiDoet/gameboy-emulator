@@ -3,7 +3,7 @@
 
 #define LCD_WIDTH 160
 #define LCD_HEIGHT 144
-#define LCD_SCALE 1
+#define LCD_SCALE 4
 
 #include <SDL2/SDL.h>
 

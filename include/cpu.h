@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-//#define CPU_DEBUG
+#define CPU_DEBUG
 //#define CPU_DEBUG_INSTRUCTIONS
 //#define CPU_DEBUG_INTERRUPTS
 

@@ -11,8 +11,6 @@ void timer_tick(uint32_t cycles)
     // DIV
     timer.div_counter += cycles;
     
-    //printf("cycles: %d div_counter: %d\n", cycles, timer.div_counter);
-
     if (timer.div_counter >= 256) {
         timer.div_counter = 0;
         timer.div++;
