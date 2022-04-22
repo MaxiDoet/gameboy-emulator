@@ -26,6 +26,7 @@ typedef struct emulator_t {
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Texture *texture;
+    int audiodev_id;
 
     bool running;
 } emulator_t;

@@ -210,25 +210,19 @@ int main(int argc, char *argv[])
         exit(-1);
     }
 
-    /*
     // Init audio
     SDL_AudioSpec audio_spec;
     SDL_zero(audio_spec);
 
-    audio_spec.freq = 44100;
+    audio_spec.freq = SOUND_SAMPLERATE;
     audio_spec.format = AUDIO_F32SYS;
     audio_spec.channels = 2;
-    audio_spec.samples = 100;
+    audio_spec.samples = 1024;
+    //audio_spec.callback = sound_callback;
 
-    SDL_AudioDeviceID deviceId = SDL_OpenAudioDevice(NULL, 0, &audio_spec, NULL, 0);
+    emulator.audiodev_id = SDL_OpenAudioDevice(NULL, 0, &audio_spec, NULL, 0);
 
-    uint8_t *buf = (uint8_t *) malloc(100);
-    memset(buf, 0xFF, 100);
-
-    SDL_QueueAudio(deviceId, buf, 100);
-    SDL_PauseAudioDevice(deviceId, 0);
-    SDL_Delay(3000);
-    */
+    SDL_PauseAudioDevice(emulator.audiodev_id, 0);
 
     // Init emulator
     cpu_init();
@@ -256,7 +250,7 @@ int main(int argc, char *argv[])
         timer_tick(cpu.cycles - last_cycles);
         cpu_serve_interrupts();
         lcd_step(cpu.cycles - last_cycles);
-        sound_tick(cpu.cycles - last_cycles);
+        sound_step(cpu.cycles - last_cycles);
         last_cycles = cpu.cycles;
 
         uint64_t end = SDL_GetPerformanceCounter();
