@@ -39,6 +39,19 @@ uint16_t cpu_stack_pop()
 
 /* CB */
 
+uint8_t instruction_cb_rl(uint8_t value)
+{
+    uint8_t carry = CHECK_FLAG(FLAG_CARRY) ? 1 : 0;
+    uint8_t result = (value << 1) | carry;
+
+    if (result == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_CARRY);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_HALFCARRY);
+    if ((value & (1 << 7))) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+    
+    return result;
+}
+
 uint8_t instruction_cb_rr(uint8_t value)
 {
     uint8_t carry = CHECK_FLAG(FLAG_CARRY) ? 0x80 : 0x00;
@@ -65,10 +78,23 @@ uint8_t instruction_cb_rlc(uint8_t value)
     return result;
 }
 
+uint8_t instruction_cb_sra(uint8_t value) 
+{
+    uint8_t carry = (value & (1 << 0));
+    uint8_t result = (value >> 1);
+
+    if (result == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    CLEAR_FLAG(FLAG_HALFCARRY);
+    if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
+
+    return result;
+}
+
 uint8_t instruction_cb_srl(uint8_t value)
 {
     uint8_t carry = (value & (1 << 0));
-    uint8_t result = value >> 1;
+    uint8_t result = (value >> 1) & 0x7F;
 
     if (result == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
@@ -89,6 +115,62 @@ uint8_t instruction_cb_sla(uint8_t value)
     if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
 
     return result;
+}
+
+void instruction_cb_sra_a()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.a = instruction_cb_sra(cpu.regs.a);
+}
+
+void instruction_cb_sra_b()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.b = instruction_cb_sra(cpu.regs.b);
+}
+
+void instruction_cb_sra_c()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.c = instruction_cb_sra(cpu.regs.c);
+}
+
+void instruction_cb_sra_d()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.d = instruction_cb_sra(cpu.regs.d);
+}
+
+void instruction_cb_sra_e()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.e = instruction_cb_sra(cpu.regs.e);
+}
+
+void instruction_cb_sra_h()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.h = instruction_cb_sra(cpu.regs.h);
+}
+
+void instruction_cb_sra_l()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.l = instruction_cb_sra(cpu.regs.l);
+}
+
+void instruction_cb_sra_hlp()
+{
+    cpu.cycles += 16;
+
+    mmu_wb(cpu.regs.hl, instruction_cb_sra(mmu_rb(cpu.regs.hl)));
 }
 
 void instruction_cb_rlc_a()
@@ -145,6 +227,62 @@ void instruction_cb_rlc_hlp()
     cpu.cycles += 16;
 
     mmu_wb(cpu.regs.hl, instruction_cb_rlc(mmu_rb(cpu.regs.hl)));
+}
+
+void instruction_cb_rl_a()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.a = instruction_cb_rl(cpu.regs.a);
+}
+
+void instruction_cb_rl_b()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.b = instruction_cb_rl(cpu.regs.b);
+}
+
+void instruction_cb_rl_c()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.c = instruction_cb_rl(cpu.regs.c);
+}
+
+void instruction_cb_rl_d()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.d = instruction_cb_rl(cpu.regs.d);
+}
+
+void instruction_cb_rl_e()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.e = instruction_cb_rl(cpu.regs.e);
+}
+
+void instruction_cb_rl_h()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.h = instruction_cb_rl(cpu.regs.h);
+}
+
+void instruction_cb_rl_l()
+{
+    cpu.cycles += 8;
+
+    cpu.regs.l = instruction_cb_rl(cpu.regs.l);
+}
+
+void instruction_cb_rl_hlp()
+{
+    cpu.cycles += 8;
+
+    mmu_wb(cpu.regs.hl, instruction_cb_rl(mmu_rb(cpu.regs.hl)));
 }
 
 void instruction_cb_rr_a()
@@ -468,6 +606,342 @@ void instruction_cb_set_7_a()
     cpu.cycles += 8;
 }
 
+void instruction_cb_set_0_b()
+{
+    cpu.regs.b |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_b()
+{
+    cpu.regs.b |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_b()
+{
+    cpu.regs.b |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_b()
+{
+    cpu.regs.b |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_b()
+{
+    cpu.regs.b |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_b()
+{
+    cpu.regs.b |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_b()
+{
+    cpu.regs.b |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_b()
+{
+    cpu.regs.b |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_0_c()
+{
+    cpu.regs.c |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_c()
+{
+    cpu.regs.c |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_c()
+{
+    cpu.regs.c |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_c()
+{
+    cpu.regs.c |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_c()
+{
+    cpu.regs.c |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_c()
+{
+    cpu.regs.c |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_c()
+{
+    cpu.regs.c |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_c()
+{
+    cpu.regs.c |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_0_d()
+{
+    cpu.regs.d |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_d()
+{
+    cpu.regs.d |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_d()
+{
+    cpu.regs.d |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_d()
+{
+    cpu.regs.d |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_d()
+{
+    cpu.regs.d |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_d()
+{
+    cpu.regs.d |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_d()
+{
+    cpu.regs.d |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_d()
+{
+    cpu.regs.d |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_0_e()
+{
+    cpu.regs.e |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_e()
+{
+    cpu.regs.e |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_e()
+{
+    cpu.regs.e |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_e()
+{
+    cpu.regs.e |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_e()
+{
+    cpu.regs.e |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_e()
+{
+    cpu.regs.e |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_e()
+{
+    cpu.regs.e |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_e()
+{
+    cpu.regs.e |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_0_h()
+{
+    cpu.regs.h |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_h()
+{
+    cpu.regs.h |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_h()
+{
+    cpu.regs.h |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_h()
+{
+    cpu.regs.h |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_h()
+{
+    cpu.regs.h |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_h()
+{
+    cpu.regs.h |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_h()
+{
+    cpu.regs.h |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_h()
+{
+    cpu.regs.h |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_0_l()
+{
+    cpu.regs.l |= (1 << 0);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_1_l()
+{
+    cpu.regs.l |= (1 << 1);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_2_l()
+{
+    cpu.regs.l |= (1 << 2);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_3_l()
+{
+    cpu.regs.l |= (1 << 3);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_4_l()
+{
+    cpu.regs.l |= (1 << 4);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_5_l()
+{
+    cpu.regs.l |= (1 << 5);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_6_l()
+{
+    cpu.regs.l |= (1 << 6);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_set_7_l()
+{
+    cpu.regs.l |= (1 << 7);
+
+    cpu.cycles += 8;
+}
+
 void instruction_cb_set_0_hlp()
 {
     mmu_wb(cpu.regs.hl, mmu_rb(cpu.regs.hl) | (1 << 0));
@@ -639,262 +1113,6 @@ void instruction_cb_bit_6_a()
 void instruction_cb_bit_7_a()
 {
     uint8_t value = cpu.regs.a;
-
-    if (value & (1 << 7)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_0_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 0)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_1_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 1)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_2_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 2)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_3_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 3)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_4_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 4)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_5_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 5)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_6_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 6)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_7_h()
-{
-    uint8_t value = cpu.regs.h;
-
-    if (value & (1 << 7)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_0_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 0)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_1_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 1)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_2_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 2)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_3_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 3)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_4_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 4)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_5_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 5)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_6_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
-
-    if (value & (1 << 6)) {
-        CLEAR_FLAG(FLAG_ZERO);
-    } else {
-        SET_FLAG(FLAG_ZERO);
-    }
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    SET_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
-void instruction_cb_bit_7_hlp()
-{
-    uint8_t value = mmu_rb(cpu.regs.hl);
 
     if (value & (1 << 7)) {
         CLEAR_FLAG(FLAG_ZERO);
@@ -1164,6 +1382,646 @@ void instruction_cb_bit_7_c()
     cpu.cycles += 8;
 }
 
+void instruction_cb_bit_0_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_d()
+{
+    uint8_t value = cpu.regs.d;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_0_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_e()
+{
+    uint8_t value = cpu.regs.e;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_0_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_h()
+{
+    uint8_t value = cpu.regs.h;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_0_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_l()
+{
+    uint8_t value = cpu.regs.l;
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_0_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 0)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_1_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 1)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_2_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 2)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_3_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 3)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_4_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 4)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_5_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 5)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_6_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 6)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
+void instruction_cb_bit_7_hlp()
+{
+    uint8_t value = mmu_rb(cpu.regs.hl);
+
+    if (value & (1 << 7)) {
+        CLEAR_FLAG(FLAG_ZERO);
+    } else {
+        SET_FLAG(FLAG_ZERO);
+    }
+
+    CLEAR_FLAG(FLAG_SUBTRACTION);
+    SET_FLAG(FLAG_HALFCARRY);
+
+    cpu.cycles += 8;
+}
+
 void instruction_cb_srl_a()
 {
     cpu.cycles += 8;
@@ -1278,21 +2136,6 @@ void instruction_cb_sla_hlp()
     mmu_wb(cpu.regs.hl, instruction_cb_sla(mmu_rb(cpu.regs.hl)));
 }
 
-/* Temporary instructions for the boot rom */
-
-void instruction_cb_rl_c()
-{
-    uint8_t carry = cpu.regs.c & (1 << 7);
-    if (carry) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
-
-    cpu.regs.c = (cpu.regs.c << 1) | CHECK_FLAG(FLAG_CARRY);
-
-    CLEAR_FLAG(FLAG_SUBTRACTION);
-    CLEAR_FLAG(FLAG_HALFCARRY);
-
-    cpu.cycles += 8;
-}
-
 /* Instructions */
 
 /* Control */
@@ -1337,6 +2180,8 @@ void instruction_stop()
 {
     // TODO: Stop emulator
     cpu.halted = true;
+    
+    timer.div = 0;
 
     cpu.cycles += 4;
 }
@@ -2489,12 +3334,10 @@ void instruction_add_a_hlp()
 void instruction_adc(uint8_t value)
 {
     if (CHECK_FLAG(FLAG_CARRY)) value++;
-
     if (value == cpu.regs.a) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_SUBTRACTION);
     if (cpu.regs.a ) SET_FLAG(FLAG_HALFCARRY); else CLEAR_FLAG(FLAG_HALFCARRY);
     if (cpu.regs.a < tmp) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
-
     cpu.regs.a += cpu.regs.a;
 }
 */
@@ -3316,7 +4159,6 @@ void instruction_daa()
 {
     /*
     uint8_t result = cpu.regs.a;
-
     if (CHECK_FLAG(FLAG_SUBTRACTION)) {
         if (CHECK_FLAG(FLAG_HALFCARRY)) {
             result -= 0x06;
@@ -3326,13 +4168,10 @@ void instruction_daa()
             result += 0x06;
         }
     }
-
     if (result == 0) SET_FLAG(FLAG_ZERO); else CLEAR_FLAG(FLAG_ZERO);
     CLEAR_FLAG(FLAG_HALFCARRY);
     if (result > 0x99) SET_FLAG(FLAG_CARRY); else CLEAR_FLAG(FLAG_CARRY);
-
     cpu.regs.a = result;
-
     cpu.cycles += 4;
     */
 
@@ -3560,6 +4399,7 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x35] = &instruction_cb_swap_l,
     [0x36] = &instruction_cb_swap_hlp,
 
+    /* RES */
     [0x87] = &instruction_cb_res_0_a,
     [0x8F] = &instruction_cb_res_1_a,
     [0x97] = &instruction_cb_res_2_a,
@@ -3578,6 +4418,7 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0xB6] = &instruction_cb_res_6_hlp,
     [0xBE] = &instruction_cb_res_7_hlp,
 
+    /* SET */
     [0xC7] = &instruction_cb_set_0_a,
     [0xCF] = &instruction_cb_set_1_a,
     [0xD7] = &instruction_cb_set_2_a,
@@ -3586,6 +4427,60 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0xEF] = &instruction_cb_set_5_a,
     [0xF7] = &instruction_cb_set_6_a,
     [0xFF] = &instruction_cb_set_7_a,
+
+    [0xC0] = &instruction_cb_set_0_b,
+    [0xC8] = &instruction_cb_set_1_b,
+    [0xD0] = &instruction_cb_set_2_b,
+    [0xD8] = &instruction_cb_set_3_b,
+    [0xE0] = &instruction_cb_set_4_b,
+    [0xE8] = &instruction_cb_set_5_b,
+    [0xF0] = &instruction_cb_set_6_b,
+    [0xF8] = &instruction_cb_set_7_b,
+
+    [0xC1] = &instruction_cb_set_0_c,
+    [0xC9] = &instruction_cb_set_1_c,
+    [0xD1] = &instruction_cb_set_2_c,
+    [0xD9] = &instruction_cb_set_3_c,
+    [0xE1] = &instruction_cb_set_4_c,
+    [0xE9] = &instruction_cb_set_5_c,
+    [0xF1] = &instruction_cb_set_6_c,
+    [0xF9] = &instruction_cb_set_7_c,
+
+    [0xC2] = &instruction_cb_set_0_d,
+    [0xCA] = &instruction_cb_set_1_d,
+    [0xD2] = &instruction_cb_set_2_d,
+    [0xDA] = &instruction_cb_set_3_d,
+    [0xE2] = &instruction_cb_set_4_d,
+    [0xEA] = &instruction_cb_set_5_d,
+    [0xF2] = &instruction_cb_set_6_d,
+    [0xFA] = &instruction_cb_set_7_d,
+
+    [0xC3] = &instruction_cb_set_0_e,
+    [0xCB] = &instruction_cb_set_1_e,
+    [0xD3] = &instruction_cb_set_2_e,
+    [0xDB] = &instruction_cb_set_3_e,
+    [0xE3] = &instruction_cb_set_4_e,
+    [0xEB] = &instruction_cb_set_5_e,
+    [0xF3] = &instruction_cb_set_6_e,
+    [0xFB] = &instruction_cb_set_7_e,
+
+    [0xC4] = &instruction_cb_set_0_h,
+    [0xCC] = &instruction_cb_set_1_h,
+    [0xD4] = &instruction_cb_set_2_h,
+    [0xDC] = &instruction_cb_set_3_h,
+    [0xE4] = &instruction_cb_set_4_h,
+    [0xEC] = &instruction_cb_set_5_h,
+    [0xF4] = &instruction_cb_set_6_h,
+    [0xFC] = &instruction_cb_set_7_h,
+
+    [0xC5] = &instruction_cb_set_0_l,
+    [0xCD] = &instruction_cb_set_1_l,
+    [0xD5] = &instruction_cb_set_2_l,
+    [0xDD] = &instruction_cb_set_3_l,
+    [0xE5] = &instruction_cb_set_4_l,
+    [0xED] = &instruction_cb_set_5_l,
+    [0xF5] = &instruction_cb_set_6_l,
+    [0xFD] = &instruction_cb_set_7_l,
 
     [0xC6] = &instruction_cb_set_0_hlp,
     [0xCE] = &instruction_cb_set_1_hlp,
@@ -3596,6 +4491,7 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0xF6] = &instruction_cb_set_6_hlp,
     [0xFE] = &instruction_cb_set_7_hlp,
 
+    /* BIT */
     [0x47] = &instruction_cb_bit_0_a,
     [0x4F] = &instruction_cb_bit_1_a,
     [0x57] = &instruction_cb_bit_2_a,
@@ -3623,6 +4519,24 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x71] = &instruction_cb_bit_6_c,
     [0x79] = &instruction_cb_bit_7_c,
 
+    [0x42] = &instruction_cb_bit_0_d,
+    [0x4A] = &instruction_cb_bit_1_d,
+    [0x52] = &instruction_cb_bit_2_d,
+    [0x5A] = &instruction_cb_bit_3_d,
+    [0x62] = &instruction_cb_bit_4_d,
+    [0x6A] = &instruction_cb_bit_5_d,
+    [0x72] = &instruction_cb_bit_6_d,
+    [0x7A] = &instruction_cb_bit_7_d,
+
+    [0x43] = &instruction_cb_bit_0_e,
+    [0x4B] = &instruction_cb_bit_1_e,
+    [0x53] = &instruction_cb_bit_2_e,
+    [0x5B] = &instruction_cb_bit_3_e,
+    [0x63] = &instruction_cb_bit_4_e,
+    [0x6B] = &instruction_cb_bit_5_e,
+    [0x73] = &instruction_cb_bit_6_e,
+    [0x7B] = &instruction_cb_bit_7_e,
+
     [0x44] = &instruction_cb_bit_0_h,
     [0x4C] = &instruction_cb_bit_1_h,
     [0x54] = &instruction_cb_bit_2_h,
@@ -3631,6 +4545,15 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x6C] = &instruction_cb_bit_5_h,
     [0x74] = &instruction_cb_bit_6_h,
     [0x7C] = &instruction_cb_bit_7_h,
+
+    [0x45] = &instruction_cb_bit_0_l,
+    [0x4D] = &instruction_cb_bit_1_l,
+    [0x55] = &instruction_cb_bit_2_l,
+    [0x5D] = &instruction_cb_bit_3_l,
+    [0x65] = &instruction_cb_bit_4_l,
+    [0x6D] = &instruction_cb_bit_5_l,
+    [0x75] = &instruction_cb_bit_6_l,
+    [0x7D] = &instruction_cb_bit_7_l,
  
     [0x46] = &instruction_cb_bit_0_hlp,
     [0x4E] = &instruction_cb_bit_1_hlp,
@@ -3641,8 +4564,17 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x76] = &instruction_cb_bit_6_hlp,
     [0x7E] = &instruction_cb_bit_7_hlp,
 
+    [0x2F] = &instruction_cb_sra_a,
+    [0x28] = &instruction_cb_sra_h,
+    [0x29] = &instruction_cb_sra_c,
+    [0x2A] = &instruction_cb_sra_d,
+    [0x2B] = &instruction_cb_sra_e,
+    [0x2C] = &instruction_cb_sra_h,
+    [0x2D] = &instruction_cb_sra_l,
+    [0x2E] = &instruction_cb_sra_hlp,
+
     [0x3F] = &instruction_cb_srl_a,
-    [0x38] = &instruction_cb_srl_b,
+    [0x38] = &instruction_cb_srl_h,
     [0x39] = &instruction_cb_srl_c,
     [0x3A] = &instruction_cb_srl_d,
     [0x3B] = &instruction_cb_srl_e,
@@ -3650,9 +4582,19 @@ const void (*cb_instruction_pointers[256])(void) = {
     [0x3D] = &instruction_cb_srl_l,
     [0x3E] = &instruction_cb_srl_hlp,
 
+    /* RL */
+    [0x17] = &instruction_cb_rl_a,
+    [0x10] = &instruction_cb_rl_h,
+    [0x11] = &instruction_cb_rl_c,
+    [0x12] = &instruction_cb_rl_d,
+    [0x13] = &instruction_cb_rl_e,
+    [0x14] = &instruction_cb_rl_h,
+    [0x15] = &instruction_cb_rl_l,
+    [0x16] = &instruction_cb_rl_hlp,
+
     /* RR */
     [0x1F] = &instruction_cb_rr_a,
-    [0x18] = &instruction_cb_rr_b,
+    [0x18] = &instruction_cb_rr_h,
     [0x19] = &instruction_cb_rr_c,
     [0x1A] = &instruction_cb_rr_d,
     [0x1B] = &instruction_cb_rr_e,
@@ -3662,7 +4604,7 @@ const void (*cb_instruction_pointers[256])(void) = {
 
     /* RLC */
     [0x07] = &instruction_cb_rlc_a,
-    [0x00] = &instruction_cb_rlc_b,
+    [0x00] = &instruction_cb_rlc_h,
     [0x01] = &instruction_cb_rlc_c,
     [0x02] = &instruction_cb_rlc_d,
     [0x03] = &instruction_cb_rlc_e,
@@ -3672,16 +4614,13 @@ const void (*cb_instruction_pointers[256])(void) = {
 
     /* SLA */
     [0x27] = &instruction_cb_sla_a,
-    [0x20] = &instruction_cb_sla_b,
+    [0x20] = &instruction_cb_sla_h,
     [0x21] = &instruction_cb_sla_c,
     [0x22] = &instruction_cb_sla_d,
     [0x23] = &instruction_cb_sla_e,
     [0x24] = &instruction_cb_sla_h,
     [0x25] = &instruction_cb_sla_l,
-    [0x26] = &instruction_cb_sla_hlp,
-
-    /* Temp */
-    [0x11] = &instruction_cb_rl_c,
+    [0x26] = &instruction_cb_sla_hlp
 };
 
 const char* instruction_labels[256] = {
@@ -4334,10 +5273,7 @@ void cpu_step()
     }
 
     // Breakpoints
-    //if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x0100) cpu.debug_enabled = true;
-    //if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0xC629) cpu.debug_enabled = true;
-    //if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0xC63F) cpu.debug_enabled = true;
-    if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x03AE) cpu.debug_enabled = true;
+    if (mmu.boot_rom_mapped == false && cpu.regs.pc == 0x0100) cpu.debug_enabled = true;
 
     uint8_t opcode = mmu_rb(cpu.regs.pc++);
 

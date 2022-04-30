@@ -1,6 +1,8 @@
 #ifndef _mbc_h
 #define _mbc_h
 
+#define MBC_DEBUG
+
 #define MBC_TYPE_NOMBC  0
 #define MBC_TYPE_MBC1   1
 #define MBC_TYPE_MBC2   2
@@ -15,8 +17,8 @@ typedef struct mbc_t {
     uint8_t rom_banks;
     uint8_t ram_banks;
 
-    uint8_t rom_bank_number;
-    uint8_t ram_bank_number;
+    uint8_t rom_bank;
+    uint8_t ram_bank;
 
     uint8_t* rom;
     uint8_t* ram;

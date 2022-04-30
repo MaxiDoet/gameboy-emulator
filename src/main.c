@@ -217,8 +217,7 @@ int main(int argc, char *argv[])
     audio_spec.freq = SOUND_SAMPLERATE;
     audio_spec.format = AUDIO_F32SYS;
     audio_spec.channels = 2;
-    audio_spec.samples = 1024;
-    //audio_spec.callback = sound_callback;
+    audio_spec.samples = SOUND_BUFFER_SIZE;
 
     emulator.audiodev_id = SDL_OpenAudioDevice(NULL, 0, &audio_spec, NULL, 0);
 
@@ -242,7 +241,7 @@ int main(int argc, char *argv[])
         
 		//SDL_RenderClear(emulator.renderer);
 
-        if (cpu.stopped) {
+        if (cpu.stopped || !lcd.regs.control.fields.lcd_ppu_enable) {
             handle_events();
         }
 
@@ -256,5 +255,6 @@ int main(int argc, char *argv[])
         uint64_t end = SDL_GetPerformanceCounter();
     }
 
+    SDL_CloseAudioDevice(emulator.audiodev_id);
     SDL_Quit();
 }

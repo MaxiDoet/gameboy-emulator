@@ -70,18 +70,9 @@ void mmu_wb(uint16_t addr, uint8_t data)
                 DEBUG_MMU("Serial Transfer -> %c\n", mmu.serial_out);
                 #endif
             }
-        } else if (addr == 0xFF04) {
-            // Timer DIV
-            timer.div = 0;
-        } else if (addr == 0xFF05) {
-            // Timer TIMA
-            timer.tima = data;
-        } else if (addr == 0xFF06) {
-            // Timer TMA
-            timer.tma = data;
-        } else if (addr == 0xFF07) {
-            // Timer TAC
-            timer.tac = data;
+        } else if (addr >= 0xFF04 && addr <= 0xFF07) {
+            // Timer
+            timer_wb(addr & 0xFF, data);
         } else if (addr == 0xFF0F) {
             // Interrupt flags
             cpu.ifr = data;
@@ -158,18 +149,9 @@ uint8_t mmu_rb(uint16_t addr)
             result = mmu.serial_data;
         } else if (addr == 0xFF02) {
             result = mmu.serial_control.value;
-        } else if (addr == 0xFF04) {
-            // Timer DIV
-            result = timer.div;
-        } else if (addr == 0xFF05) {
-            // Timer TIMA
-            result = timer.tima;
-        } else if (addr == 0xFF06) {
-            // Timer TMA
-            result = timer.tma;
-        } else if (addr == 0xFF07) {
-            // Timer TAC
-            result = timer.tac;
+        } else if (addr >= 0xFF04 && addr <= 0xFF07) {
+            // Timer
+            result = timer_rb(addr & 0xFF);
         } else if (addr == 0xFF0F) {
             // Interrupt flag
             result = cpu.ifr;
